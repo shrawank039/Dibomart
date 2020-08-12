@@ -1,6 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#1496F1</color>
+    <color name="colorPrimaryDark">#015A98</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="colorAccent">#1496F1</color>
+    <color name="colorPrimaryLight">#58B1EF</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <color name="text_header">#545454</color>
+    <color name="text_content">#929292</color>
+    <color name="divider">#ececec</color>
+    <color name="bg">#f4f5f4</color>
+
+    <color name="about_title">#626262</color>
+    <color name="about_desc">#8b8b8b</color>
+
+    <color name="navigation_default">#000000</color>
+    <color name="navigation_checked">#fbb019</color>
+    <color name="line">#C6CBCF</color>
+    <color name="transparent">#00000000</color>
+
+    <color name="radio_group_bg">#796be6</color>
+    <color name="login_bottom">#fbb019</color>
+    <color name="edit_text_hint_color">#fbb019</color>
+    <color name="login_line">#fbb019</color>
+
+    <color name="profile_pic_border">#5a49cf</color>
+    <color name="profile_current_position">#eeeeee</color>
+    <color name="profile_exp">#fbb019</color>
+    <color name="profile_content">#686868</color>
+    <color name="app_bg">#f3f3f2</color>
+    <color name="home_search_hint">#888888</color>
+    <color name="job_list_line">#e3e3e3</color>
+
+
+    <color name="applied_job">#74c129</color>
+    <color name="applied_job_seen">#14c3e8</color>
+
+    <color name="setting_bg">#f7f7f7</color>
+    <color name="setting_divider">#d7d7d7</color>
+    <color name="setting_text">#686868</color>
+
+    <color name="about_us_Text">#424242</color>
+    <color name="about_us_SubText">#767676</color>
+
+    <color name="tab_indicator">#ffd787</color>
+    <color name="tab_select_text">#ffffff</color>
+    <color name="tab_un_select_text">#968edd</color>
+    <color name="job_details_sub">#bbbaba</color>
+    <color name="gray">#424242</color>
+    <color name="bt_very_light_gray">#E2E2E3</color>
+    <color name="blueRandom">#2bc5b4</color>
 </resources>

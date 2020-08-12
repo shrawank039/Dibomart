@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/gradient_tb"
+    tools:ignore="MissingPrefix">
+
+  <LinearLayout
+      android:background="@color/colorPrimary"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+  <EditText
+      android:id="@+id/edt_search"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="20dp"
+      android:layout_marginTop="12dp"
+      android:layout_marginBottom="12dp"
+      android:layout_marginEnd="20dp"
+      android:background="@drawable/white_button"
+      android:drawableStart="@drawable/ic_search"
+      android:drawablePadding="8dp"
+      android:hint="@string/home_search_keyword"
+      android:imeOptions="actionSearch"
+      android:inputType="textPersonName"
+      android:padding="10dp"
+      android:textColor="@color/black"
+      android:textColorHint="@color/home_search_hint"
+      android:textCursorDrawable="@drawable/cursor_black"
+      android:textSize="15sp" />
+  </LinearLayout>
+
+  <ScrollView
+      android:scrollbars="none"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+  <androidx.cardview.widget.CardView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      app:cardCornerRadius="5dp"
+      android:layout_margin="10dp"
+      android:elevation="3dp">
+
+    <com.glide.slider.library.SliderLayout
+        android:id="@+id/slider"
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
+  </androidx.cardview.widget.CardView>
+
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:gravity="start"
+        android:orientation="vertical">
+
+      <TextView
+          fontPath="fonts/customBold.otf"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Categories"
+          android:fontFamily="@font/muli_semibold"
+          android:textColor="@color/black"
+          android:textSize="15sp"
+          android:textStyle="bold" />
+      <View
+          android:id="@+id/viewCategory"
+          android:layout_width="40dp"
+          android:layout_height="2dp"
+          android:layout_marginTop="5dp"
+          android:background="@color/colorPrimary" />
+
+      <HorizontalScrollView
+          android:scrollbars="none"
+          android:layout_marginTop="10dp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+          <include layout="@layout/row_home_category"/>
+          <include layout="@layout/row_home_category"/>
+          <include layout="@layout/row_home_category"/>
+          <include layout="@layout/row_home_category"/>
+          <include layout="@layout/row_home_category"/>
+        </LinearLayout>
+
+
+      </HorizontalScrollView>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textCategoryViewAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/muli_semibold"
+        android:layout_alignParentEnd="true"
+        android:text="View All"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="13sp" />
+  </RelativeLayout>
+
+  <ImageView
+      android:layout_marginTop="10dp"
+      android:layout_width="match_parent"
+      android:src="@drawable/a"
+      android:scaleType="centerCrop"
+      android:layout_height="300dp"/>
+
+    </LinearLayout>
+  </ScrollView>
+
+</LinearLayout>
