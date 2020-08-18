@@ -3,14 +3,17 @@ package com.dibomart.dibomart;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -84,6 +87,17 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         toolbar.setNavigationIcon(R.drawable.ic_side_nav);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        float density  = getResources().getDisplayMetrics().density;
+      //  float height =  displayMetrics.heightPixels/density;
+        float width = displayMetrics.widthPixels/density;
+        int a = (int) (width*density/3.189);  // 1920*602
+        int b = (int) (width*density/1.66); // 800*480
+
+        prf.setInt("banner_height",a+20);
+        prf.setInt("pbanner_height",b+20);
 
     }
 

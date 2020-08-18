@@ -51,6 +51,7 @@
     <color name="tab_un_select_text">#968edd</color>
     <color name="job_details_sub">#bbbaba</color>
     <color name="gray">#424242</color>
+    <color name="light_gray">#9E9E9E</color>
     <color name="bt_very_light_gray">#E2E2E3</color>
     <color name="blueRandom">#2bc5b4</color>
     <color name="red">#FF2C1D</color>

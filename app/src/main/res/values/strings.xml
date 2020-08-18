@@ -15,4 +15,7 @@
     <string name="drawer_open">Drawer Open</string>
     <string name="drawer_close">Drawer Close</string>
     <string name="home_search_keyword">Search Keywords</string>
+    <string name="title_activity_product_list">ProductList</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
 </resources>

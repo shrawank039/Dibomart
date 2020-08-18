@@ -6,4 +6,7 @@
     <dimen name="item_offset">2dp</dimen>
     <integer name="number_of_column">3</integer>
     <dimen name="item_space">8dp</dimen>
+    <dimen name="appbar_padding">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="appbar_padding_top">8dp</dimen>
 </resources>
