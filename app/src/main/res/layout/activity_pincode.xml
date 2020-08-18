@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/gradient_tb"
+    android:layout_height="match_parent"
+    tools:context=".PincodeActivity">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/logo"/>
+
+    <LinearLayout
+        android:id="@+id/ll_noservice"
+        android:visibility="gone"
+        android:layout_below="@id/logo"
+        android:gravity="center"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/red"
+            android:textSize="22sp"
+            android:fontFamily="@font/muli_extrabold"
+            android:text="Temporarily Unserviceable"/>
+        <TextView
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/muli"
+            android:text="We are not taking any new orders in this area. Please try a different location."/>
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/edt_pincode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:backgroundTint="@color/white"
+        android:textSize="20sp"
+        android:inputType="number"
+        android:maxLength="6"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:fontFamily="@font/muli_semibold"
+        android:hint="Enter Your Pin Code"
+        android:layout_centerInParent="true"
+        android:drawablePadding="15dp"
+        android:drawableStart="@drawable/ic_small_location"/>
+
+    <Button
+        android:onClick="pinSubmit"
+        android:textSize="20dp"
+        android:layout_below="@id/edt_pincode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:textColor="@color/colorPrimary"
+        android:background="@drawable/round_button_white"
+        android:layout_marginRight="30dp"
+        android:text="Submit"/>
+</RelativeLayout>

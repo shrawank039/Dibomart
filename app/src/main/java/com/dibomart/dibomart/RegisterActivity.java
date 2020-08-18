@@ -17,7 +17,7 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG_FIRSTNAME = "firstname";
     private static final String TAG_LASTNAME = "lastname";
     private static final String TAG_EMAIL = "email";
-    private static final String TAG_MOBILE = "mobile";
+    private static final String TAG_MOBILE = "phone";
     private static final String TAG_PASSWORD = "password";
 
     //Textbox

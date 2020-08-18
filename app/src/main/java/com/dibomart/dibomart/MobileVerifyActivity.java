@@ -19,6 +19,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.dibomart.dibomart.net.MySingleton;
+import com.dibomart.dibomart.net.ServiceNames;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -34,9 +36,10 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.matrixdeveloper.sattamatka.net.MySingleton;
-import com.matrixdeveloper.sattamatka.net.ServiceNames;
 import com.rilixtech.CountryCodePicker;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,15 +53,12 @@ public class MobileVerifyActivity extends AppCompatActivity {
     // Progress Dialog
     private ProgressDialog pDialog;
 
-    private static final String url = ServiceNames.USER_REGISTRATION;
-    private static final String urlresetpass = ServiceNames.CHANGE_PASS;
-
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_FIRSTNAME = "firstname";
     private static final String TAG_LASTNAME = "lastname";
     private static final String TAG_EMAIL = "email";
-    private static final String TAG_MOBILE = "mobile";
+    private static final String TAG_MOBILE = "phone";
     private static final String TAG_PASSWORD = "password";
 
     //Textbox
@@ -112,7 +112,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
 
         ccp = (CountryCodePicker) findViewById(R.id.ccp);
         phoneed = (TextInputEditText) this.findViewById(R.id.numbered);
-//        ccp.registerPhoneNumberTextView(phoneed);
+   //     ccp.registerPhoneNumberTextView(phoneed);
 
 //        ccp.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
 //            @Override
@@ -194,6 +194,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (fabbutton.getTag().equals("send")) {
                     if (!phoneed.getText().toString().trim().isEmpty() && phoneed.getText().toString().trim().length() >= 5) {
+                      //  Toast.makeText(MobileVerifyActivity.this, ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim(), Toast.LENGTH_SHORT).show();
                         startPhoneNumberVerification(ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim());
                         mVerified = false;
                         starttimer();
@@ -218,6 +219,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
                     if (mVerified) {
                         if(!ispass) {
                            // new OneLoadAllProducts().execute();
+                            Log.d("TAG","Verified : registerSubmit()");
                             registerSubmit();
                         } else {
                             ((LinearLayout) findViewById(R.id.entermobile)).setVisibility(View.GONE);
@@ -369,23 +371,31 @@ public class MobileVerifyActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        pDialog.dismiss();
-                        if (success == 1) {
-                            // offers found
-                            // Getting Array of offers
 
-                            Intent intent = new Intent(MobileVerifyActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                            Toast.makeText(MobileVerifyActivity.this,"Registration done Succsessfully",Toast.LENGTH_LONG).show();
+                       Log.d("TAG","response : "+response);
 
-                        } else if(success == 2){
-                            // no offers found
-                            Toast.makeText(MobileVerifyActivity.this,"Email/mobile/username is already exist. change it and try again!",Toast.LENGTH_LONG).show();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            success = jsonObject.optInt("success");
+                            if (success == 1) {
 
-                        } else {
-                            Toast.makeText(MobileVerifyActivity.this,"User not created",Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(MobileVerifyActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                                Toast.makeText(MobileVerifyActivity.this,"Registration done Succsessfully",Toast.LENGTH_LONG).show();
 
+                            } else if(success == 2){
+                                // no offers found
+                                Toast.makeText(MobileVerifyActivity.this,"Email/mobile/username is already exist. change it and try again!",Toast.LENGTH_LONG).show();
+
+                            } else {
+                                Toast.makeText(MobileVerifyActivity.this,"User not created",Toast.LENGTH_LONG).show();
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+
+                        pDialog.dismiss();
                     }
                 }, new Response.ErrorListener() {
             @Override

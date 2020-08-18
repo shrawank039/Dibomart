@@ -1,23 +1,14 @@
 package com.dibomart.dibomart;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -26,13 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.bumptech.glide.request.RequestOptions;
-import com.glide.slider.library.SliderLayout;
-import com.glide.slider.library.slidertypes.BaseSliderView;
-import com.glide.slider.library.slidertypes.TextSliderView;
+import com.dibomart.dibomart.fragment.HomeFragment;
 import com.google.android.material.navigation.NavigationView;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fragmentManager;
     NavigationView navigationView;
     Toolbar toolbar;
+    private static PrefManager prf;
     boolean doubleBackToExitPressedOnce = false;
 
 
@@ -49,13 +36,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), PincodeActivity.class));
+            }
+        });
         fragmentManager = getSupportFragmentManager();
         navigationView = findViewById(R.id.navigation_view);
         drawerLayout = findViewById(R.id.drawer_layout);
+        prf = new PrefManager(MainActivity.this);
 
 
         HomeFragment homeFragment = new HomeFragment();
-        loadFrag(homeFragment, "834004", fragmentManager);
+        loadFrag(homeFragment, prf.getString("pincode"), fragmentManager);
 
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -66,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
                     case R.id.menu_go_category:
                               return true;
-                      case R.id.menu_go_setting:
-                          return true;
                     case R.id.menu_go_profile:
                        return true;
                     case R.id.menu_go_logout:

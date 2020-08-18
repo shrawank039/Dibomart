@@ -1,34 +1,71 @@
 {
   "project_info": {
-    "project_number": "632440589924",
-    "firebase_url": "https://dibomart-2e8c9.firebaseio.com",
-    "project_id": "dibomart-2e8c9",
-    "storage_bucket": "dibomart-2e8c9.appspot.com"
+    "project_number": "860805084641",
+    "firebase_url": "https://satta-matka-d090f.firebaseio.com",
+    "project_id": "satta-matka-d090f",
+    "storage_bucket": "satta-matka-d090f.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:632440589924:android:6b9e7042545315402c9971",
+        "mobilesdk_app_id": "1:860805084641:android:caff00ed47ee0d46a3cea0",
         "android_client_info": {
-          "package_name": "com.dibomart"
+          "package_name": "com.dibomart.dibomart"
         }
       },
       "oauth_client": [
         {
-          "client_id": "632440589924-gap3m1eqhlgqqcphbnk3p57ui3j80knt.apps.googleusercontent.com",
+          "client_id": "860805084641-89mhus1s0u9tmmklkq1st1d8q3kt4udj.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC6vsPdCZde2PkA7Yz1_T6MPji69H8muww"
+          "current_key": "AIzaSyDDrxRRk1vR-DsayII-DuzIyY13yuqcIgk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "632440589924-gap3m1eqhlgqqcphbnk3p57ui3j80knt.apps.googleusercontent.com",
+              "client_id": "860805084641-89mhus1s0u9tmmklkq1st1d8q3kt4udj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860805084641:android:9e3f08cd4194de4ea3cea0",
+        "android_client_info": {
+          "package_name": "com.matrixdeveloper.sattamatka"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "860805084641-5ir505lautf603rmlp1pkmm1va65pc08.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.matrixdeveloper.sattamatka",
+            "certificate_hash": "4134c32671b597ba0c4b6ee68298f4ffb9a262f1"
+          }
+        },
+        {
+          "client_id": "860805084641-89mhus1s0u9tmmklkq1st1d8q3kt4udj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDrxRRk1vR-DsayII-DuzIyY13yuqcIgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "860805084641-89mhus1s0u9tmmklkq1st1d8q3kt4udj.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
