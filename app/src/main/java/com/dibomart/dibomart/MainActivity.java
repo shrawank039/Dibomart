@@ -4,8 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
+import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -20,8 +23,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.dibomart.dibomart.adapter.ExpandableListAdapter;
 import com.dibomart.dibomart.fragment.HomeFragment;
+import com.dibomart.dibomart.model.MenuModel;
 import com.google.android.material.navigation.NavigationView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     private static PrefManager prf;
     boolean doubleBackToExitPressedOnce = false;
+    ExpandableListAdapter expandableListAdapter;
+    ExpandableListView expandableListView;
+    List<MenuModel> headerList = new ArrayList<>();
+    HashMap<MenuModel, List<MenuModel>> childList = new HashMap<>();
 
 
     @Override
@@ -50,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         prf = new PrefManager(MainActivity.this);
 
+        expandableListView = findViewById(R.id.expandableListView);
+        prepareMenuData();
+        populateExpandableList();
 
         HomeFragment homeFragment = new HomeFragment();
         loadFrag(homeFragment, prf.getString("pincode"), fragmentManager);
@@ -116,6 +132,83 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(Title);
             toolbar.setLogo(R.drawable.ic_baseline_location_on_24);
         }
+    }
+
+    private void prepareMenuData() {
+
+        MenuModel menuModel = new MenuModel("Home", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
+
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+
+        menuModel = new MenuModel("Category", true, true, ""); //Menu of Java Tutorials
+        headerList.add(menuModel);
+        List<MenuModel> childModelsList = new ArrayList<>();
+        MenuModel childModel = new MenuModel("Vegetable", false, false, null);
+        childModelsList.add(childModel);
+
+        childModel = new MenuModel("Fruits", false, false, null);
+        childModelsList.add(childModel);
+
+        childModel = new MenuModel("Oils", false, false, null);
+        childModelsList.add(childModel);
+
+
+        if (menuModel.hasChildren) {
+            Log.d("API123","here");
+            childList.put(menuModel, childModelsList);
+        }
+
+        childModelsList = new ArrayList<>();
+        menuModel = new MenuModel("Setting", true, true, ""); //Menu of Python Tutorials
+        headerList.add(menuModel);
+        childModel = new MenuModel("Account", false, false, null);
+        childModelsList.add(childModel);
+
+        childModel = new MenuModel("Address", false, false, null);
+        childModelsList.add(childModel);
+
+        if (menuModel.hasChildren) {
+            childList.put(menuModel, childModelsList);
+        }
+    }
+
+    private void populateExpandableList() {
+
+        expandableListAdapter = new ExpandableListAdapter(this, headerList, childList);
+        expandableListView.setAdapter(expandableListAdapter);
+
+        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+
+                if (headerList.get(groupPosition).isGroup) {
+                    if (!headerList.get(groupPosition).hasChildren) {
+
+                        onBackPressed();
+                    }
+                }
+
+                return false;
+            }
+        });
+
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+
+                if (childList.get(headerList.get(groupPosition)) != null) {
+                    MenuModel model = childList.get(headerList.get(groupPosition)).get(childPosition);
+                    if (model.url.length() > 0) {
+                        onBackPressed();
+                    }
+                }
+
+                return false;
+            }
+        });
     }
 
 

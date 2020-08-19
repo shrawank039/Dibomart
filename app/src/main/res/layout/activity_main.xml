@@ -34,7 +34,17 @@
         android:background="@color/white"
         app:headerLayout="@layout/left_nav_header"
         app:itemIconTint="@color/state_list"
-        app:itemTextColor="@color/state_list"
-        app:menu="@menu/menu_drawer" />
+        app:itemTextColor="@color/state_list">
+
+        <ExpandableListView
+            android:id="@+id/expandableListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="130dp"
+            android:background="@android:color/white"
+            android:dividerHeight="0dp"
+            android:groupIndicator="@null" />
+
+    </com.google.android.material.navigation.NavigationView>
 
 </androidx.drawerlayout.widget.DrawerLayout>
