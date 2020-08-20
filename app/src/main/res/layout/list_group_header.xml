@@ -12,6 +12,7 @@
 <!--        android:layout_margin="10dp"-->
 <!--        android:layout_height="25dp"-->
 <!--        android:src="@drawable/ic_categories"/>-->
+
     <TextView
         android:id="@+id/lblListHeader"
         android:layout_width="match_parent"

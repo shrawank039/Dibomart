@@ -19,7 +19,7 @@
         <activity android:name=".AddressActivity" />
         <activity android:name=".CartActivity" />
         <activity
-            android:name=".ProductList"
+            android:name=".ProductListActivity"
             android:label="@string/title_activity_product_list"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".CategoryActivity" />

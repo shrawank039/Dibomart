@@ -2,17 +2,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="111dp">
+    android:layout_height="120dp">
 
     <ImageView
+        android:layout_marginStart="10dp"
         android:layout_centerVertical="true"
-        android:id="@+id/image"
+        android:id="@+id/product_image"
         android:layout_width="110dp"
-        android:layout_height="110dp"
+        android:layout_height="120dp"
         android:src="@drawable/placeholder" />
 
     <LinearLayout
-        android:layout_toRightOf="@id/image"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/product_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -34,13 +36,13 @@
                     android:maxLines="1"
                     android:text="Product Name"
                     android:textColor="@color/gray"
-                    android:textSize="13sp" />
+                    android:textSize="15sp" />
         <ImageView
-            android:id="@+id/favImage"
+            android:id="@+id/img_fav"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_margin="5dp"
-            android:src="@drawable/placeholder" />
+            android:src="@drawable/heart" />
         </LinearLayout>
 
         <TextView
@@ -51,6 +53,7 @@
             android:layout_height="wrap_content"
             android:text="Quantity - 500 Grams"
             android:padding="5dp"
+            android:textSize="13sp"
             android:fontFamily="@font/muli_semibold"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="3dp"
@@ -58,6 +61,7 @@
             android:background="@drawable/edit_text_border"/>
 
         <LinearLayout
+            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -65,11 +69,13 @@
             android:layout_marginEnd="10dp">
 
             <TextView
-                android:visibility="gone"
+                android:visibility="visible"
                 android:id="@+id/txt_mrp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="\u20B9"
+                android:text="\u20B920"
+                android:background="@drawable/strike_through"
+                android:textColor="@color/light_gray"
                 android:padding="5dp"
                 android:fontFamily="@font/muli_extrabold" />
 
@@ -85,19 +91,19 @@
                 />
 
             <ImageView
-                android:id="@+id/btn_less"
+                android:id="@+id/img_less"
                 android:layout_marginEnd="10dp"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_categories" />
+                android:src="@drawable/minus" />
 
             <TextView
                 android:layout_marginEnd="10dp"
-                android:id="@+id/txt_item"
+                android:id="@+id/txt_itemcount"
                 android:maxLength="3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="1"
                 android:padding="5dp"
                 android:fontFamily="@font/muli_extrabold"
                 android:textColor="@color/colorPrimary"
@@ -105,10 +111,10 @@
 
             <ImageView
                 android:layout_marginEnd="10dp"
-                android:id="@+id/btn_add"
+                android:id="@+id/img_add"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_categories" />
+                android:src="@drawable/add" />
 
 
         </LinearLayout>

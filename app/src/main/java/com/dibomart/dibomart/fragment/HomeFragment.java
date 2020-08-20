@@ -3,7 +3,6 @@ package com.dibomart.dibomart.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,11 +21,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.request.RequestOptions;
-import com.dibomart.dibomart.CategoryActivity;
 import com.dibomart.dibomart.PrefManager;
-import com.dibomart.dibomart.ProductList;
+import com.dibomart.dibomart.ProductListActivity;
 import com.dibomart.dibomart.R;
-import com.dibomart.dibomart.SplashScreen;
 import com.dibomart.dibomart.WebViewActivity;
 import com.dibomart.dibomart.adapter.CategoryAdapter;
 import com.dibomart.dibomart.adapter.MerchantAdapter;
@@ -43,7 +40,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,7 +137,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
                 //  Toast.makeText(context, ongoing.getId(), Toast.LENGTH_SHORT).show();
 
-                    Intent in = new Intent(getActivity(), ProductList.class);
+                    Intent in = new Intent(getActivity(), ProductListActivity.class);
                     in.putExtra("category_id", ongoing.getId());
                     startActivity(in);
 

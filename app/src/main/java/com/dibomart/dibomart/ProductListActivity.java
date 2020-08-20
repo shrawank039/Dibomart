@@ -13,7 +13,7 @@ import android.view.View;
 
 import com.dibomart.dibomart.ui.SectionsPagerAdapter;
 
-public class ProductList extends AppCompatActivity {
+public class ProductListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +24,6 @@ public class ProductList extends AppCompatActivity {
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-
 
     }
 }
