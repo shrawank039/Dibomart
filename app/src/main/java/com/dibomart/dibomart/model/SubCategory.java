@@ -2,7 +2,7 @@ package com.dibomart.dibomart.model;
 
 public class SubCategory {
     private String name;
-    private String id;
+    private String category_id;
 
     public SubCategory() {
     }
@@ -15,12 +15,11 @@ public class SubCategory {
         this.name = name;
     }
 
-    public String getId() {
-        return id;
+    public String getCategory_id() {
+        return category_id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setCategory_id(String category_id) {
+        this.category_id = category_id;
     }
-
 }

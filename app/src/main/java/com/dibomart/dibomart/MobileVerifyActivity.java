@@ -15,10 +15,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.dibomart.dibomart.model.Merchant;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,6 +41,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.rilixtech.CountryCodePicker;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -58,7 +62,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
     private static final String TAG_FIRSTNAME = "firstname";
     private static final String TAG_LASTNAME = "lastname";
     private static final String TAG_EMAIL = "email";
-    private static final String TAG_MOBILE = "phone";
+    private static final String TAG_MOBILE = "telephone";
     private static final String TAG_PASSWORD = "password";
 
     //Textbox
@@ -69,13 +73,15 @@ public class MobileVerifyActivity extends AppCompatActivity {
     private String mobile;
     private String password;
 
-    private int success;
+    private String success;
 
     private boolean ispass;
 
     private TextInputEditText newPass;
     private Button resetPassButton;
     private TextInputEditText retypeNewPass;
+    private static PrefManager prf;
+    private static final String TAG_USERID = "customer_id";
 
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     private FirebaseAuth mAuth;
@@ -95,6 +101,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mobile_verify);
 
+        prf = new PrefManager(this);
         try {
             ispass = getIntent().getStringExtra("password").contains("password");
             if(!ispass) {
@@ -367,32 +374,49 @@ public class MobileVerifyActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, ServiceNames.USER_REGISTRATION,
-                new Response.Listener<String>() {
+        JSONObject data= new JSONObject();
+        try {
+            data.put(TAG_FIRSTNAME, firstname);
+            data.put(TAG_LASTNAME, lastname);
+            data.put(TAG_EMAIL, email);
+            data.put(TAG_MOBILE, mobile);
+            data.put(TAG_PASSWORD, password);
+            data.put("confirm", password);
+            data.put("customer_group_id", "1");
+            data.put("agree", "1");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.USER_REGISTRATION, data,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(JSONObject jsonObject) {
+                        success = jsonObject.optString("success");
+                        if (success.equals("1")) {
 
-                       Log.d("TAG","response : "+response);
+                            JSONObject data = jsonObject.optJSONObject("data");
+                            // preference and set username for session
+                            prf.setString(TAG_USERID, data.optString(TAG_USERID));
+                            prf.setString(TAG_FIRSTNAME, data.optString(TAG_FIRSTNAME));
+                            prf.setString(TAG_LASTNAME, data.optString(TAG_LASTNAME));
+                            prf.setString(TAG_EMAIL, data.optString(TAG_EMAIL));
+                            prf.setString(TAG_MOBILE, data.optString("telephone"));
 
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            success = jsonObject.optInt("success");
-                            if (success == 1) {
+                            Intent intent = new Intent(MobileVerifyActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
 
-                                Intent intent = new Intent(MobileVerifyActivity.this, LoginActivity.class);
-                                startActivity(intent);
-                                Toast.makeText(MobileVerifyActivity.this,"Registration done Succsessfully",Toast.LENGTH_LONG).show();
+                            Toast.makeText(MobileVerifyActivity.this, "Registration done Succsessfully", Toast.LENGTH_LONG).show();
 
-                            } else if(success == 2){
-                                // no offers found
-                                Toast.makeText(MobileVerifyActivity.this,"Email/mobile/username is already exist. change it and try again!",Toast.LENGTH_LONG).show();
-
-                            } else {
-                                Toast.makeText(MobileVerifyActivity.this,"User not created",Toast.LENGTH_LONG).show();
-
+                        } else {
+                            try {
+                                JSONArray jsonArray = jsonObject.getJSONArray("error");
+                                String error = jsonArray.optString(1);
+                                Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
 
                         pDialog.dismiss();
@@ -404,14 +428,12 @@ public class MobileVerifyActivity extends AppCompatActivity {
             }
         }){
             @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
-                params.put(TAG_FIRSTNAME, firstname);
-                params.put(TAG_LASTNAME, lastname);
-                params.put(TAG_EMAIL, email);
-                params.put(TAG_MOBILE, mobile);
-                params.put(TAG_PASSWORD, password);
-                return params;
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                headers.put("X-Oc-Session", prf.getString("session"));
+                return headers;
             }
         };
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
@@ -429,7 +451,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         pDialog.dismiss();
-                        if (success == 1) {
+                        if (success.equals("1")) {
                             // offers found
                             // Getting Array of offers
 
@@ -437,10 +459,6 @@ public class MobileVerifyActivity extends AppCompatActivity {
                             startActivity(intent);
 
                             Toast.makeText(MobileVerifyActivity.this,"Password changed Succsessfully",Toast.LENGTH_LONG).show();
-
-                        } else if(success == 2){
-                            // no offers found
-                            Toast.makeText(MobileVerifyActivity.this,"Something went wrong.Please try again!",Toast.LENGTH_LONG).show();
 
                         } else {
                             Toast.makeText(MobileVerifyActivity.this,"Something went wrong.Please try again!",Toast.LENGTH_LONG).show();

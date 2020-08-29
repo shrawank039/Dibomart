@@ -26,18 +26,9 @@ public class WebViewActivity extends AppCompatActivity {
         myWebView = (WebView) findViewById(R.id.webview);
         myWebView.getSettings().setJavaScriptEnabled(true);
         myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
-      //  myWebView.setWebViewClient(new MyWebViewClient());
+        myWebView.setWebViewClient(new MyWebViewClient());
         myWebView.loadUrl(url);
 
-
-        // Create an unencoded HTML string
-// then convert the unencoded HTML string into bytes, encode
-// it with Base64, and load the data.
-//        String unencodedHtml =
-//                "&lt;html&gt;&lt;body&gt;'%23' is the percent code for ‘#‘ &lt;/body&gt;&lt;/html&gt;";
-//        String encodedHtml = Base64.encodeToString(unencodedHtml.getBytes(),
-//                Base64.NO_PADDING);
-//        myWebView.loadData(encodedHtml, "text/html", "base64");
     }
 
     @Override

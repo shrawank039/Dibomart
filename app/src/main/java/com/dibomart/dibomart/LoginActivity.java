@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,10 +13,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
@@ -42,11 +45,11 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG_SUCCESS = "success";
 
     //user
-    private static final String TAG_USERID = "id";
-    private static final String TAG_FIRSTNAME = "fname";
-    private static final String TAG_LASTNAME = "lname";
+    private static final String TAG_USERID = "customer_id";
+    private static final String TAG_FIRSTNAME = "firstname";
+    private static final String TAG_LASTNAME = "lastname";
     private static final String TAG_EMAIL = "email";
-    private static final String TAG_MOBILE = "phone";
+    private static final String TAG_MOBILE = "telephone";
     private static final String TAG_PASSWORD = "password";
 
     //balance
@@ -68,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button signin;
     private TextView resetnow;
 
-    private int success;
+    private String success;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,8 +121,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean checkdetails() {
 
-        if (phone.getText().toString().trim().isEmpty()) {
-            Toast.makeText(LoginActivity.this, "Enter Value for Mobile", Toast.LENGTH_SHORT).show();
+        if (phone.getText().toString().trim().isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(phone.getText().toString().trim()).matches()) {
+            Toast.makeText(LoginActivity.this, "Enter Value for E-mail", Toast.LENGTH_SHORT).show();
             phone.requestFocus();
         }  else if (password.getText().toString().trim().isEmpty()) {
             Toast.makeText(LoginActivity.this, "Enter Value for Password", Toast.LENGTH_SHORT).show();
@@ -138,48 +141,44 @@ public class LoginActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, ServiceNames.USER_LOGIN,
-                new Response.Listener<String>() {
+        JSONObject data= new JSONObject();
+        try {
+            data.put("email", phone.getText().toString());
+            data.put(TAG_PASSWORD, password.getText().toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.USER_LOGIN, data,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(JSONObject jsonObject) {
                         pDialog.dismiss();
-                        Log.d("TAG", "response : "+response);
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(response);
-                            success = jsonObject.optInt("success");
-                            if (success == 1) {
 
-                                JSONObject data = jsonObject.optJSONObject("data");
-
-                                    // preference and set username for session
-                                    prf.setString(TAG_USERID, data.optString(TAG_USERID));
-                                    prf.setString(TAG_FIRSTNAME, data.optString(TAG_FIRSTNAME));
-                                    prf.setString(TAG_LASTNAME, data.optString(TAG_LASTNAME));
-                                    prf.setString(TAG_EMAIL, data.optString(TAG_EMAIL));
-                                    prf.setString(TAG_MOBILE, data.optString(TAG_MOBILE));
-
-                                    //balance
-                                    prf.setString(TAG_USERBALANCE, data.optString(TAG_USERBALANCE));
+                        success = jsonObject.optString("success");
+                        if (success.equals("1")) {
+                            JSONObject data = jsonObject.optJSONObject("data");
+                                // preference and set username for session
+                                prf.setString(TAG_USERID, data.optString(TAG_USERID));
+                                prf.setString(TAG_FIRSTNAME, data.optString(TAG_FIRSTNAME));
+                                prf.setString(TAG_LASTNAME, data.optString(TAG_LASTNAME));
+                                prf.setString(TAG_EMAIL, data.optString(TAG_EMAIL));
+                                prf.setString(TAG_MOBILE, data.optString("telephone"));
 
 
+                           finish();
 
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
+                            Toast.makeText(LoginActivity.this,"Sign in done Succsessfully",Toast.LENGTH_LONG).show();
 
-                                Toast.makeText(LoginActivity.this,"Signin done Succsessfully",Toast.LENGTH_LONG).show();
-
-                            } else if(success == 2){
-                                // no jsonarray found
-                                Toast.makeText(LoginActivity.this,"Username or password is not valid",Toast.LENGTH_LONG).show();
-
-                            } else {
-                                Toast.makeText(LoginActivity.this,"Something went wrong. Try again!",Toast.LENGTH_LONG).show();
-
+                        }
+                        else {
+                            try {
+                                JSONArray jsonArray = jsonObject.getJSONArray("error");
+                                String error = jsonArray.optString(1);
+                                Toast.makeText(LoginActivity.this, error, Toast.LENGTH_LONG).show();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
 
                     }
@@ -191,11 +190,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         }){
             @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("username", phone.getText().toString());
-                params.put(TAG_PASSWORD, password.getText().toString());
-                return params;
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                headers.put("X-Oc-Session", prf.getString("session"));
+                return headers;
             }
         };
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(

@@ -1,15 +1,21 @@
 package com.dibomart.dibomart.model;
 
-public class ProductList {
+import java.io.Serializable;
+import java.util.List;
+
+public class ProductList implements Serializable {
     private String name;
     private String image_url;
     private String id;
     private String weight_class;
     private String weight;
+    private int item_count;
     private String product_id;
     private String price;
     private String special_price;
     private String description;
+    private String product_option_id;
+    private List<ProductOption> productOptions;
 
     public ProductList() {
     }
@@ -84,5 +90,29 @@ public class ProductList {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getItem_count() {
+        return item_count;
+    }
+
+    public void setItem_count(int item_count) {
+        this.item_count = item_count;
+    }
+
+    public List<ProductOption> getProductOptions() {
+        return productOptions;
+    }
+
+    public void setProductOptions(List<ProductOption> productOptions) {
+        this.productOptions = productOptions;
+    }
+
+    public String getProduct_option_id() {
+        return product_option_id;
+    }
+
+    public void setProduct_option_id(String product_option_id) {
+        this.product_option_id = product_option_id;
     }
 }

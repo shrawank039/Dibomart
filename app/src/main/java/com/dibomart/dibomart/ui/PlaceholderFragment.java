@@ -3,6 +3,7 @@ package com.dibomart.dibomart.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,10 +26,15 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.dibomart.dibomart.Global;
 import com.dibomart.dibomart.PrefManager;
+import com.dibomart.dibomart.ProductDetailsActivity;
+import com.dibomart.dibomart.ProductListActivity;
 import com.dibomart.dibomart.R;
 import com.dibomart.dibomart.adapter.ProductListAdapter;
 import com.dibomart.dibomart.model.ProductList;
+import com.dibomart.dibomart.model.ProductOption;
+import com.dibomart.dibomart.model.SubCategory;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 
@@ -50,9 +56,11 @@ public class PlaceholderFragment extends Fragment {
     private static PrefManager prf;
     private PageViewModel pageViewModel;
     private List<ProductList> productLists = new ArrayList<>();
+    private List<ProductOption> productOptionList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ProductListAdapter mAdapter;
     private Context context;
+    private List<SubCategory> subCat;
 
     public static PlaceholderFragment newInstance(int index) {
         PlaceholderFragment fragment = new PlaceholderFragment();
@@ -73,6 +81,7 @@ public class PlaceholderFragment extends Fragment {
         context = getActivity();
         prf = new PrefManager(context);
         pageViewModel.setIndex(index);
+
     }
 
     @Override
@@ -80,13 +89,18 @@ public class PlaceholderFragment extends Fragment {
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_product_list, container, false);
-        final TextView textView = root.findViewById(R.id.section_label);
         prf = new PrefManager(getContext());
-      //  Toast.makeText(getContext(), getText(), Toast.LENGTH_SHORT).show();
-        pageViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+
+        pageViewModel.getText().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
+            public void onChanged(@Nullable Integer s) {
+                ProductListActivity activity = (ProductListActivity) getActivity();
+                subCat = Global.subCatList;
+                //  Toast.makeText(activity, String.valueOf(s), Toast.LENGTH_SHORT).show();
+                if (subCat.size() > 0) {
+                    SubCategory subCategory = subCat.get(s);
+                    getProductList(subCategory.getCategory_id());
+                }
             }
         });
 
@@ -95,7 +109,6 @@ public class PlaceholderFragment extends Fragment {
         productLists = new ArrayList();
         mAdapter = new ProductListAdapter(context, productLists);
 
-        getProductList();
         recyclerView.setHasFixedSize(true);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
@@ -103,28 +116,12 @@ public class PlaceholderFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        // row click listenerMyDividerItemDecoration
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(context, recyclerView, new RecyclerTouchListener.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                ProductList ongoing = productLists.get(position);
-
-                //  Toast.makeText(context, ongoing.getId(), Toast.LENGTH_SHORT).show();
-
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-
-            }
-        }));
-
         return root;
     }
 
-    private void getProductList() {
+    private void getProductList(String getData) {
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.PRODUCT_LIST+"99",
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.PRODUCT_LIST + getData,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -138,6 +135,8 @@ public class PlaceholderFragment extends Fragment {
                                     jsonarray = jsonObject.getJSONArray("data");
 
                                     for (int i = 0; i < jsonarray.length(); i++) {
+
+                                        productOptionList = new ArrayList<>();
                                         JSONObject c = null;
                                         try {
                                             c = jsonarray.getJSONObject(i);
@@ -148,8 +147,27 @@ public class PlaceholderFragment extends Fragment {
                                             productList.setPrice(c.optString("price"));
                                             productList.setSpecial_price(c.optString("special"));
                                             productList.setWeight(c.optString("weight"));
+                                            productList.setItem_count(0);
                                             productList.setWeight_class(c.optString("weight_class"));
+                                            productList.setProduct_id(c.optString("product_id"));
+                                            productList.setDescription(c.optString("description"));
 
+                                            JSONArray jsonArray = c.optJSONArray("options");
+                                            assert jsonArray != null;
+                                            JSONObject jsonObj = jsonArray.optJSONObject(0);
+                                            productList.setProduct_option_id(jsonObj.optString("product_option_id"));
+
+                                            JSONArray jsonArr = jsonObj.optJSONArray("option_value");
+                                            assert jsonArr != null;
+                                            for (int a = 0; a < jsonArr.length(); a++) {
+                                                JSONObject jsonOb = jsonArr.optJSONObject(a);
+                                                ProductOption productOption = new ProductOption();
+                                                productOption.setName(jsonOb.optString("name"));
+                                                productOption.setPrice(jsonOb.optString("price"));
+                                                productOption.setProduct_option_value_id(jsonOb.optString("product_option_value_id"));
+                                                productOptionList.add(productOption);
+                                            }
+                                            productList.setProductOptions(productOptionList);
                                             productLists.add(productList);
                                             mAdapter.notifyDataSetChanged();
 
@@ -171,8 +189,8 @@ public class PlaceholderFragment extends Fragment {
                 Toast.makeText(getContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
@@ -186,4 +204,5 @@ public class PlaceholderFragment extends Fragment {
         stringRequest.setShouldCache(false);
         MySingleton.getInstance(getContext()).addToRequestQueue(stringRequest);
     }
+
 }

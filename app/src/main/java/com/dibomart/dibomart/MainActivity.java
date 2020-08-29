@@ -23,14 +23,29 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.bumptech.glide.request.RequestOptions;
 import com.dibomart.dibomart.adapter.ExpandableListAdapter;
 import com.dibomart.dibomart.fragment.HomeFragment;
 import com.dibomart.dibomart.model.MenuModel;
+import com.dibomart.dibomart.net.MySingleton;
+import com.dibomart.dibomart.net.ServiceNames;
+import com.glide.slider.library.slidertypes.TextSliderView;
 import com.google.android.material.navigation.NavigationView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.navigation_view);
         drawerLayout = findViewById(R.id.drawer_layout);
         prf = new PrefManager(MainActivity.this);
+
+        if (prf.getString("session").equals(""))
+        createSession();
 
         expandableListView = findViewById(R.id.expandableListView);
         prepareMenuData();
@@ -117,6 +135,46 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void createSession() {
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.GET, ServiceNames.SESSION, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        if (response.optString("success").equals("1")) {
+                            try {
+                                JSONObject jsonObject = response.getJSONObject("data");
+                                String session = jsonObject.optString("session");
+                                prf.setString("session", session);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                return headers;
+            }
+        };
+        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjReq.setShouldCache(false);
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
+
     public void loadFrag(Fragment f1, String name, FragmentManager fm) {
         for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
             fm.popBackStack();
@@ -142,8 +200,13 @@ public class MainActivity extends AppCompatActivity {
         if (!menuModel.hasChildren) {
             childList.put(menuModel, null);
         }
+        menuModel = new MenuModel("Address", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
 
-        menuModel = new MenuModel("Category", true, true, ""); //Menu of Java Tutorials
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+        menuModel = new MenuModel("Shop by Category", true, true, ""); //Menu of Java Tutorials
         headerList.add(menuModel);
         List<MenuModel> childModelsList = new ArrayList<>();
         MenuModel childModel = new MenuModel("Vegetable", false, false, null);
@@ -162,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         childModelsList = new ArrayList<>();
-        menuModel = new MenuModel("Setting", true, true, ""); //Menu of Python Tutorials
+        menuModel = new MenuModel("My Account", true, true, ""); //Menu of Python Tutorials
         headerList.add(menuModel);
         childModel = new MenuModel("Account", false, false, null);
         childModelsList.add(childModel);
@@ -173,6 +236,37 @@ public class MainActivity extends AppCompatActivity {
         if (menuModel.hasChildren) {
             childList.put(menuModel, childModelsList);
         }
+        menuModel = new MenuModel("Call Us", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+        menuModel = new MenuModel("Share App", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+        menuModel = new MenuModel("Help &amp; Support", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+        menuModel = new MenuModel("Terms &amp; Conditions", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+        menuModel = new MenuModel("About Us", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+        menuModel = new MenuModel("Logout", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+
     }
 
     private void populateExpandableList() {
@@ -201,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (childList.get(headerList.get(groupPosition)) != null) {
                     MenuModel model = childList.get(headerList.get(groupPosition)).get(childPosition);
-                    if (model.url.length() > 0) {
+                    if (model.id == null) {
                         onBackPressed();
                     }
                 }

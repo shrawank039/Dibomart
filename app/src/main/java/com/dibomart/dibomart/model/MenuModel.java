@@ -2,13 +2,13 @@ package com.dibomart.dibomart.model;
 
 public class MenuModel {
 
-    public String menuName, url;
+    public String menuName, id;
     public boolean hasChildren, isGroup;
 
-    public MenuModel(String menuName, boolean isGroup, boolean hasChildren, String url) {
+    public MenuModel(String menuName, boolean isGroup, boolean hasChildren, String id) {
 
         this.menuName = menuName;
-        this.url = url;
+        this.id = id;
         this.isGroup = isGroup;
         this.hasChildren = hasChildren;
     }

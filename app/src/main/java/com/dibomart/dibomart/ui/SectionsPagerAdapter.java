@@ -9,6 +9,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.dibomart.dibomart.R;
+import com.dibomart.dibomart.model.ProductList;
+import com.dibomart.dibomart.model.SubCategory;
+
+import java.util.List;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -16,17 +20,19 @@ import com.dibomart.dibomart.R;
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.tab_text_1, R.string.tab_text_2};
     private final Context mContext;
+    String category_id;
+    private final List<SubCategory> subCategoryLists;
 
-    public SectionsPagerAdapter(Context context, FragmentManager fm) {
+    public SectionsPagerAdapter(Context context, FragmentManager fm, List<SubCategory> subCategoryLists) {
         super(fm);
         mContext = context;
+        this.subCategoryLists = subCategoryLists;
     }
 
     @Override
     public Fragment getItem(int position) {
+        final SubCategory subCategory = subCategoryLists.get(position);
         // getItem is called to instantiate the fragment for the given page.
         // Return a PlaceholderFragment (defined as a static inner class below).
         return PlaceholderFragment.newInstance(position);
@@ -35,12 +41,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-        return mContext.getResources().getString(TAB_TITLES[position]);
+        final SubCategory subCategory = subCategoryLists.get(position);
+        return subCategory.getName();
     }
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
-        return 2;
+        return subCategoryLists.size();
     }
 }

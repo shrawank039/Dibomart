@@ -17,7 +17,7 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG_FIRSTNAME = "firstname";
     private static final String TAG_LASTNAME = "lastname";
     private static final String TAG_EMAIL = "email";
-    private static final String TAG_MOBILE = "phone";
+    private static final String TAG_MOBILE = "telephone";
     private static final String TAG_PASSWORD = "password";
 
     //Textbox
@@ -85,7 +85,7 @@ public class RegisterActivity extends AppCompatActivity {
             mobile.requestFocus();
             return false;
         } else if (!Patterns.PHONE.matcher(mobile.getText().toString().trim()).matches()) {
-            Toast.makeText(RegisterActivity.this, "Enter Valid Value for MobileNumber", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RegisterActivity.this, "Enter Valid Value for Mobile Number", Toast.LENGTH_SHORT).show();
             mobile.requestFocus();
             return false;
         }

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,14 +22,18 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.request.RequestOptions;
+import com.dibomart.dibomart.Global;
+import com.dibomart.dibomart.PaymentWebViewActivity;
 import com.dibomart.dibomart.PrefManager;
 import com.dibomart.dibomart.ProductListActivity;
 import com.dibomart.dibomart.R;
+import com.dibomart.dibomart.SearchActivity;
 import com.dibomart.dibomart.WebViewActivity;
 import com.dibomart.dibomart.adapter.CategoryAdapter;
 import com.dibomart.dibomart.adapter.MerchantAdapter;
 import com.dibomart.dibomart.model.Category;
 import com.dibomart.dibomart.model.Merchant;
+import com.dibomart.dibomart.model.SubCategory;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.glide.slider.library.SliderLayout;
@@ -63,9 +68,9 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
     SliderLayout homeSlider;
     SliderLayout promoSlider;
     private static PrefManager prf;
-    private List<Category> ongoingList = new ArrayList<>();
-    private List<Merchant> merchantList = new ArrayList<>();
+    private List<Merchant> merchantList;
     private RecyclerView recyclerView, merchantRecylerView;
+    private List<SubCategory> subCategoryLists = new ArrayList<>();
     private CategoryAdapter mAdapter;
     private MerchantAdapter merchantAdapter;
 
@@ -111,16 +116,23 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
         prf = new PrefManager(getContext());
         getCategory();
-        getBannerImage();
-        getPromoBanner();
-        getMerchant();
+//        getBannerImage();
+//        getPromoBanner();
+//        getMerchant();
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         merchantRecylerView = view.findViewById(R.id.recyclerViewMerchant);
+        view.findViewById(R.id.edt_search).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getContext(), SearchActivity.class));
+            }
+        });
 
-        ongoingList = new ArrayList();
+        Global.ongoingList = new ArrayList();
+        Global.subCatList = new ArrayList<SubCategory>();
         merchantList = new ArrayList();
 
-        mAdapter = new CategoryAdapter(getActivity(), ongoingList);
+        mAdapter = new CategoryAdapter(getActivity(), Global.ongoingList);
         merchantAdapter = new MerchantAdapter(getActivity(), merchantList);
 
         recyclerView.setHasFixedSize(true);
@@ -133,7 +145,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Category ongoing = ongoingList.get(position);
+                Category ongoing = Global.ongoingList.get(position);
 
                 //  Toast.makeText(context, ongoing.getId(), Toast.LENGTH_SHORT).show();
 
@@ -314,7 +326,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
     private void getCategory() {
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.CATEGORY, null,
+                Request.Method.GET, ServiceNames.ALL_CATEGORIES, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -330,17 +342,31 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                                     try {
                                         c = jsonarray.getJSONObject(i);
                                         Category ongoing = new Category();
+                                        subCategoryLists = new ArrayList<>();
                                         ongoing.setName(c.optString("name"));
                                         ongoing.setId(c.optString("category_id"));
                                         ongoing.setImage_url(c.optString("image"));
 
-                                        ongoingList.add(ongoing);
+                                        JSONArray subArray = c.getJSONArray("categories");
+
+                                        for (int a = 0; a < subArray.length(); a++) {
+                                            SubCategory subCategory = new SubCategory();
+                                            JSONObject subJson = subArray.getJSONObject(a);
+                                            subCategory.setName(subJson.optString("name"));
+                                            subCategory.setCategory_id(subJson.optString("category_id"));
+                                            subCategoryLists.add(subCategory);
+                                          //  Log.d("subCat",ongoing.getName()+" "+subCategory.getName());
+                                        }
+                                        ongoing.setSubCategoryList(subCategoryLists);
+                                        Global.ongoingList.add(ongoing);
                                         mAdapter.notifyDataSetChanged();
+
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
                                 }
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

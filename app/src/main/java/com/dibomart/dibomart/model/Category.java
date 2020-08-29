@@ -1,9 +1,13 @@
 package com.dibomart.dibomart.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Category {
     private String name;
     private String image_url;
     private String id;
+    private List<SubCategory> subCategoryList;
 
     public Category() {
     }
@@ -32,4 +36,11 @@ public class Category {
         this.id = id;
     }
 
+    public List<SubCategory> getSubCategoryList() {
+        return subCategoryList;
+    }
+
+    public void setSubCategoryList(List<SubCategory> subCategoryList) {
+        this.subCategoryList = subCategoryList;
+    }
 }

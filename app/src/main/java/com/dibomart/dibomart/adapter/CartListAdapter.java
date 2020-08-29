@@ -3,16 +3,13 @@ package com.dibomart.dibomart.adapter;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
@@ -22,16 +19,15 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.Glide;
-import com.dibomart.dibomart.LoginActivity;
 import com.dibomart.dibomart.PrefManager;
 import com.dibomart.dibomart.ProductDetailsActivity;
 import com.dibomart.dibomart.R;
+import com.dibomart.dibomart.model.CartList;
 import com.dibomart.dibomart.model.ProductList;
 import com.dibomart.dibomart.model.ProductOption;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,13 +35,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.MyViewHolder> {
+public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyViewHolder> {
 
     private final Context ctx;
 
-    private final List<ProductList> moviesList;
-    String priceA;
-    String priceB;
+    private final List<CartList> moviesList;
+    int priceA;
+    int priceB;
     private static PrefManager prf;
     private ProgressDialog pDialog;
 
@@ -76,7 +72,7 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
         }
     }
 
-    public ProductListAdapter(Context context, List<ProductList> moviesList) {
+    public CartListAdapter(Context context, List<CartList> moviesList) {
         ctx = context;
         this.moviesList = moviesList;
     }
@@ -91,19 +87,19 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
-        final ProductList ongoing = moviesList.get(position);
+        final CartList ongoing = moviesList.get(position);
 
         priceA = ongoing.getPrice();
-        priceB = ongoing.getSpecial_price();
+        priceB = ongoing.getTotal_price();
         holder.title.setText(ongoing.getName());
-        String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-        holder.quantity.setText(a);
-        holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
-        if (!ongoing.getPrice().equals(""))
-        holder.price.setText("\u20B9"+ongoing.getPrice());
-        else
+      //  String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
+      //  holder.quantity.setText(a);
+        holder.item_count.setText(ongoing.getQuantity());
+//        if (!ongoing.getPrice().equals(""))
+//        holder.price.setText("\u20B9"+ongoing.getPrice());
+//        else
             holder.price.setVisibility(View.GONE);
-        holder.special_price.setText("\u20B9"+ongoing.getSpecial_price());
+        holder.special_price.setText("\u20B9"+ongoing.getTotal_price());
         Glide.with(ctx)
                 .load(ongoing.getImage_url())
                 .placeholder(R.drawable.placeholder)
@@ -128,23 +124,19 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
             public void onClick(View v) {
                // Toast.makeText(ctx, "add", Toast.LENGTH_SHORT).show();
                 ongoing.setItem_count(ongoing.getItem_count()+1);
-                int b = Integer.parseInt(priceA)*ongoing.getItem_count();
-                int c = Integer.parseInt(priceB)*ongoing.getItem_count();
-                ongoing.setPrice(String.valueOf(b));
-                ongoing.setSpecial_price(String.valueOf(c));
+                ongoing.setQuantity(String.valueOf(ongoing.getItem_count()));
+                int b = priceA*ongoing.getItem_count();
+                ongoing.setTotal_price(b);
+              //  ongoing.setSpecial_price(String.valueOf(c));
                 //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-                if (!ongoing.getPrice().equals(""))
-                    holder.price.setText("\u20B9"+ongoing.getPrice());
-                else
+//                if (!ongoing.getPrice().equals(""))
+//                    holder.price.setText("\u20B9"+ongoing.getPrice());
+//                else
                     holder.price.setVisibility(View.GONE);
-                holder.special_price.setText("\u20B9" + ongoing.getSpecial_price());
-                holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
-                ProductOption productOption = ongoing.getProductOptions().get(0);
-                if (ongoing.getItem_count()==1)
-                    addToCart(ongoing.getProduct_option_id(),productOption.getProduct_option_value_id(),
-                            ongoing.getProduct_id(), String.valueOf(ongoing.getItem_count()));
-                else
-                    setQnt();
+                 holder.special_price.setText("\u20B9" + ongoing.getTotal_price());
+                holder.item_count.setText(ongoing.getQuantity());
+
+                 //   addToCart(ongoing.getKey(), String.valueOf(ongoing.getItem_count()), 2);
             }
         });
         holder.imgLess.setOnClickListener(new View.OnClickListener() {
@@ -152,33 +144,31 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
             public void onClick(View v) {
                 if (ongoing.getItem_count()>0) {
                     ongoing.setItem_count(ongoing.getItem_count() - 1);
+                    ongoing.setQuantity(String.valueOf(ongoing.getItem_count()));
                     //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
                     ongoing.setItem_count(ongoing.getItem_count()-1);
-                    int b = Integer.parseInt(priceA)*ongoing.getItem_count();
-                    int c = Integer.parseInt(priceB)*ongoing.getItem_count();
-                    ongoing.setPrice(String.valueOf(b));
-                    ongoing.setSpecial_price(String.valueOf(c));
+                    int b = priceA*ongoing.getItem_count();
+                    ongoing.setTotal_price(b);
+                  //  ongoing.setSpecial_price(String.valueOf(c));
                     //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-                    if (!ongoing.getPrice().equals(""))
-                        holder.price.setText("\u20B9"+ongoing.getPrice());
-                    else
+//                    if (!ongoing.getPrice().equals(""))
+//                        holder.price.setText("\u20B9"+ongoing.getPrice());
+//                    else
                         holder.price.setVisibility(View.GONE);
-                    holder.special_price.setText("\u20B9"+ongoing.getSpecial_price());
-                    holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
-                    if (ongoing.getItem_count()==0)
-                        deleteToCart();
-                    else
-                        setQnt();
+                     holder.special_price.setText("\u20B9"+ongoing.getTotal_price());
+                    holder.item_count.setText(ongoing.getQuantity());
+                  //  ProductOption productOption = ongoing.getProductOptions().get(0);
+                 //       addToCart(ongoing.getKey(), String.valueOf(ongoing.getItem_count()), 2);
                 }
+                else
+                    Toast.makeText(ctx, "Minimum Quantity Selected", Toast.LENGTH_SHORT).show();
+
 
             }
         });
     }
 
-    private void deleteToCart() {
-    }
-
-    private void addToCart(String product_option_id, String product_option_value_id, String productId, String item_count) {
+    private void addToCart(String key, String item_count, int reqType) {
         pDialog = new ProgressDialog(ctx);
         pDialog.setMessage("Loading Please wait...");
         pDialog.setIndeterminate(false);
@@ -187,22 +177,19 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
 
         JSONObject data= new JSONObject();
         try {
-            data.put("product_id", productId);
+            data.put("key", key);
             data.put("quantity", item_count);
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put(product_option_id,product_option_value_id);
-            data.put("option", jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.CART, data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(reqType, ServiceNames.CART, data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         pDialog.dismiss();
 
-                        Toast.makeText(ctx,"Item Added to Cart",Toast.LENGTH_LONG).show();
+                      //  Toast.makeText(ctx,"Item Added to Cart",Toast.LENGTH_LONG).show();
 
                     }
                 }, new Response.ErrorListener() {
@@ -227,8 +214,6 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         stringRequest.setShouldCache(false);
         MySingleton.getInstance(ctx).addToRequestQueue(stringRequest);
-    }
-    private void setQnt() {
     }
 
     @Override
