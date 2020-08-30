@@ -140,11 +140,9 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
                 holder.special_price.setText("\u20B9" + ongoing.getSpecial_price());
                 holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
                 ProductOption productOption = ongoing.getProductOptions().get(0);
-                if (ongoing.getItem_count()==1)
                     addToCart(ongoing.getProduct_option_id(),productOption.getProduct_option_value_id(),
-                            ongoing.getProduct_id(), String.valueOf(ongoing.getItem_count()));
-                else
-                    setQnt();
+                            ongoing.getProduct_id(), "1");
+
             }
         });
         holder.imgLess.setOnClickListener(new View.OnClickListener() {
@@ -165,17 +163,13 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
                         holder.price.setVisibility(View.GONE);
                     holder.special_price.setText("\u20B9"+ongoing.getSpecial_price());
                     holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
-                    if (ongoing.getItem_count()==0)
-                        deleteToCart();
-                    else
-                        setQnt();
+                    ProductOption productOption = ongoing.getProductOptions().get(0);
+                        addToCart(ongoing.getProduct_option_id(),productOption.getProduct_option_value_id(),
+                                ongoing.getProduct_id(), "-1");
                 }
 
             }
         });
-    }
-
-    private void deleteToCart() {
     }
 
     private void addToCart(String product_option_id, String product_option_value_id, String productId, String item_count) {
@@ -202,8 +196,6 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
                     public void onResponse(JSONObject jsonObject) {
                         pDialog.dismiss();
 
-                        Toast.makeText(ctx,"Item Added to Cart",Toast.LENGTH_LONG).show();
-
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -227,8 +219,6 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         stringRequest.setShouldCache(false);
         MySingleton.getInstance(ctx).addToRequestQueue(stringRequest);
-    }
-    private void setQnt() {
     }
 
     @Override

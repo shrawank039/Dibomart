@@ -21,6 +21,7 @@ import com.dibomart.dibomart.adapter.ProductListAdapter;
 import com.dibomart.dibomart.model.CartList;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
+import com.dibomart.dibomart.ui.PlaceholderFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,7 +57,16 @@ public class CartActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
+
         getProductList();
+    }
+
+    public static CartActivity newInstance(int index) {
+        CartActivity fragment = new CartActivity();
+        Bundle bundle = new Bundle();
+        bundle.putInt("position", index);
+        Toast.makeText(fragment, "index", Toast.LENGTH_SHORT).show();
+        return fragment;
     }
 
     private void getProductList() {

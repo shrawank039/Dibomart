@@ -81,6 +81,12 @@ public class MainActivity extends AppCompatActivity {
         if (prf.getString("session").equals(""))
         createSession();
 
+        findViewById(R.id.cart).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(),CartActivity.class));
+            }
+        });
         expandableListView = findViewById(R.id.expandableListView);
         prepareMenuData();
         populateExpandableList();
