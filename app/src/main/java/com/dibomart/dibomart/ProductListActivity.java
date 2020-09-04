@@ -3,48 +3,29 @@ package com.dibomart.dibomart;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.dibomart.dibomart.adapter.ProductListAdapter;
 import com.dibomart.dibomart.model.Category;
 import com.dibomart.dibomart.model.SubCategory;
-import com.dibomart.dibomart.net.MySingleton;
-import com.dibomart.dibomart.net.ServiceNames;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.dibomart.dibomart.ui.SectionsPagerAdapter2;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
-
-import com.dibomart.dibomart.ui.SectionsPagerAdapter;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ProductListActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener{
 
-    private SectionsPagerAdapter sectionsPagerAdapter;
+    private SectionsPagerAdapter2 sectionsPagerAdapter;
     private List<SubCategory> subCategoryList = new ArrayList<>();
     private static PrefManager prf;
+    int position;
     ViewPager viewPager;
     TabLayout tabs;
 
@@ -56,6 +37,8 @@ public class ProductListActivity extends AppCompatActivity implements
         subCategoryList = new ArrayList<>();
         viewPager = findViewById(R.id.view_pager);
         tabs = findViewById(R.id.tabs);
+
+        position = getIntent().getIntExtra("index", 0);
 
         Spinner spin = (Spinner) findViewById(R.id.spinner);
         spin.setOnItemSelectedListener(this);
@@ -73,24 +56,21 @@ public class ProductListActivity extends AppCompatActivity implements
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //Setting the ArrayAdapter data on the Spinner
         spin.setAdapter(aa);
+        spin.setSelection(position);
 
-    }
-    public List<SubCategory> sendData() {
-        return subCategoryList;
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-       // Toast.makeText(getApplicationContext(), Global.ongoingList.get(position).getName() , Toast.LENGTH_LONG).show();
+     //   Toast.makeText(getApplicationContext(), Global.ongoingList.get(position).getName() , Toast.LENGTH_LONG).show();
         Category category = Global.ongoingList.get(position);
-        sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(),category.getSubCategoryList());
+        subCategoryList = category.getSubCategoryList();
+        Global.subCatList = subCategoryList;
+        sectionsPagerAdapter = new SectionsPagerAdapter2(this, getSupportFragmentManager(),category.getSubCategoryList());
+      //  sectionsPagerAdapter.notifyDataSetChanged();
         viewPager.setAdapter(sectionsPagerAdapter);
         tabs.setupWithViewPager(viewPager);
-        if (category.getSubCategoryList().size()>0) {
-            SubCategory subCategory = category.getSubCategoryList().get(0);
-            subCategoryList = category.getSubCategoryList();
-            Global.subCatList = subCategoryList;
-        }
+
     }
 
     @Override

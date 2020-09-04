@@ -1,9 +1,8 @@
 package com.dibomart.dibomart.adapter;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
@@ -21,17 +19,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.Glide;
-import com.dibomart.dibomart.CartActivity;
+import com.dibomart.dibomart.Global;
 import com.dibomart.dibomart.PrefManager;
 import com.dibomart.dibomart.ProductDetailsActivity;
 import com.dibomart.dibomart.R;
 import com.dibomart.dibomart.model.CartList;
-import com.dibomart.dibomart.model.ProductList;
-import com.dibomart.dibomart.model.ProductOption;
-import com.dibomart.dibomart.model.SubCategory;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
-import com.dibomart.dibomart.ui.PlaceholderFragment;
+import com.dibomart.dibomart.ui.PageViewModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,10 +40,8 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
     private final Context ctx;
 
     private final List<CartList> moviesList;
-    int priceA;
-    int priceB;
+    int priceA =0;
     private static PrefManager prf;
-   // private ProgressDialog pDialog;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
@@ -80,6 +73,8 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
     public CartListAdapter(Context context, List<CartList> moviesList) {
         ctx = context;
         this.moviesList = moviesList;
+
+       // pageViewModel = ViewModelProviders.of((FragmentActivity) context).get(PageViewModel.class);
     }
 
     @Override
@@ -94,16 +89,15 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final CartList ongoing = moviesList.get(position);
 
-        priceA = ongoing.getPrice();
-        priceB = ongoing.getTotal_price();
         holder.title.setText(ongoing.getName());
       //  String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
       //  holder.quantity.setText(a);
+        PageViewModel.setitemIndex(moviesList.size());
         holder.item_count.setText(ongoing.getQuantity());
 //        if (!ongoing.getPrice().equals(""))
 //        holder.price.setText("\u20B9"+ongoing.getPrice());
 //        else
-            holder.price.setVisibility(View.GONE);
+        holder.price.setVisibility(View.GONE);
         holder.special_price.setText("\u20B9"+ongoing.getTotal_price());
         Glide.with(ctx)
                 .load(ongoing.getImage_url())
@@ -118,32 +112,30 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
             }
         });
 
-      //  holder.favImg.setImageResource(R.drawable.bin);
-
         holder.favImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                deleteItem(ongoing.getKey());
                 moviesList.remove(position);
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position, moviesList.size());
-                deleteItem(ongoing.getKey());
+                Global.cartTotalPrice = Global.cartTotalPrice-ongoing.getTotal_price();
+                PageViewModel.setIndex(Global.cartTotalPrice);
+                PageViewModel.setitemIndex(moviesList.size());
 
             }
         });
         holder.imgAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ctx, "add", Toast.LENGTH_SHORT).show();
+                priceA = ongoing.getPrice();
                 ongoing.setItem_count(ongoing.getItem_count()+1);
                 ongoing.setQuantity(String.valueOf(ongoing.getItem_count()));
                 int b = priceA*ongoing.getItem_count();
+                Global.cartTotalPrice = Global.cartTotalPrice+b;
+                PageViewModel.setIndex(Global.cartTotalPrice);
                 ongoing.setTotal_price(b);
-              //  ongoing.setSpecial_price(String.valueOf(c));
-                //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-//                if (!ongoing.getPrice().equals(""))
-//                    holder.price.setText("\u20B9"+ongoing.getPrice());
-//                else
-                    holder.price.setVisibility(View.GONE);
+                holder.price.setVisibility(View.GONE);
                  holder.special_price.setText("\u20B9" + ongoing.getTotal_price());
                 holder.item_count.setText(ongoing.getQuantity());
 
@@ -155,16 +147,14 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
             @Override
             public void onClick(View v) {
                 if (ongoing.getItem_count()>1) {
+                    priceA = ongoing.getPrice();
                     ongoing.setItem_count(ongoing.getItem_count() - 1);
                     ongoing.setQuantity(String.valueOf(ongoing.getItem_count()));
                     //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
                     int b = priceA*ongoing.getItem_count();
                     ongoing.setTotal_price(b);
-                  //  ongoing.setSpecial_price(String.valueOf(c));
-                    //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-//                    if (!ongoing.getPrice().equals(""))
-//                        holder.price.setText("\u20B9"+ongoing.getPrice());
-//                    else
+                    Global.cartTotalPrice = Global.cartTotalPrice-b;
+                    PageViewModel.setIndex(Global.cartTotalPrice);
                         holder.price.setVisibility(View.GONE);
                      holder.special_price.setText("\u20B9"+ongoing.getTotal_price());
                     holder.item_count.setText(ongoing.getQuantity());
@@ -181,30 +171,19 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
     }
 
     private void deleteItem(String key) {
-//        pDialog = new ProgressDialog(ctx);
-//        pDialog.setMessage("Deleting...");
-//        pDialog.setIndeterminate(false);
-//        pDialog.setCancelable(false);
-//        pDialog.show();
 
-        JSONObject data= new JSONObject();
-        try {
-            data.put("key", key);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.CART, data,
+        JsonObjectRequest stringReq = new JsonObjectRequest(Request.Method.DELETE, ServiceNames.CART+"/"+key, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                    //    pDialog.dismiss();
+                        //     pDialog.dismiss();
 
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-             //   pDialog.dismiss();
+                //   pDialog.dismiss();
+                Log.d("TAG", error.toString());
                 Toast.makeText(ctx, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }){
@@ -217,12 +196,12 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
                 return headers;
             }
         };
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+        stringReq.setRetryPolicy(new DefaultRetryPolicy(
                 15000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        stringRequest.setShouldCache(false);
-        MySingleton.getInstance(ctx).addToRequestQueue(stringRequest);
+        stringReq.setShouldCache(false);
+        MySingleton.getInstance(ctx).addToRequestQueue(stringReq);
     }
 
     private void setQnt(String key, String quantity) {
@@ -276,10 +255,4 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
         return moviesList.size();
     }
 
-    @Override
-    public Activity getItem(int position) {
-        // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
-        return CartActivity.newInstance(position);
-    }
 }

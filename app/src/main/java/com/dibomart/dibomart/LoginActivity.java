@@ -70,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button signup;
     private Button signin;
     private TextView resetnow;
+    String session;
 
     private String success;
 
@@ -82,6 +83,9 @@ public class LoginActivity extends AppCompatActivity {
 
         // Hashmap for ListView
         offersList = new ArrayList<>();
+
+        if (prf.getString("session").equals(""))
+            createSession();
 
         phone = (EditText) findViewById(R.id.phone);
         password = (EditText) findViewById(R.id.password);
@@ -157,6 +161,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         success = jsonObject.optString("success");
                         if (success.equals("1")) {
+                            prf.setString("session", session);
                             JSONObject data = jsonObject.optJSONObject("data");
                                 // preference and set username for session
                                 prf.setString(TAG_USERID, data.optString(TAG_USERID));
@@ -165,8 +170,7 @@ public class LoginActivity extends AppCompatActivity {
                                 prf.setString(TAG_EMAIL, data.optString(TAG_EMAIL));
                                 prf.setString(TAG_MOBILE, data.optString("telephone"));
 
-
-                           finish();
+                               finish();
 
                             Toast.makeText(LoginActivity.this,"Sign in done Succsessfully",Toast.LENGTH_LONG).show();
 
@@ -194,7 +198,7 @@ public class LoginActivity extends AppCompatActivity {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
-                headers.put("X-Oc-Session", prf.getString("session"));
+                headers.put("X-Oc-Session", session);
                 return headers;
             }
         };
@@ -204,6 +208,45 @@ public class LoginActivity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         stringRequest.setShouldCache(false);
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+    }
+
+    private void createSession() {
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.GET, ServiceNames.SESSION, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        if (response.optString("success").equals("1")) {
+                            try {
+                                JSONObject jsonObject = response.getJSONObject("data");
+                                session = jsonObject.optString("session");
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                return headers;
+            }
+        };
+        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjReq.setShouldCache(false);
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 
 }

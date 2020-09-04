@@ -1,14 +1,10 @@
 package com.dibomart.dibomart.ui;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -28,8 +24,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.dibomart.dibomart.Global;
 import com.dibomart.dibomart.PrefManager;
-import com.dibomart.dibomart.ProductDetailsActivity;
-import com.dibomart.dibomart.ProductListActivity;
 import com.dibomart.dibomart.R;
 import com.dibomart.dibomart.adapter.ProductListAdapter;
 import com.dibomart.dibomart.model.ProductList;
@@ -50,20 +44,20 @@ import java.util.Map;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PlaceholderFragment extends Fragment {
+public class PlaceholderFragment2 extends Fragment {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
+
+    private PageViewModel2 pageViewModel;
     private static PrefManager prf;
-    private PageViewModel pageViewModel;
     private List<ProductList> productLists = new ArrayList<>();
     private List<ProductOption> productOptionList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ProductListAdapter mAdapter;
-    private Context context;
-    private List<SubCategory> subCat;
+    private List<SubCategory> subCat = new ArrayList<>();
 
-    public static PlaceholderFragment newInstance(int index) {
-        PlaceholderFragment fragment = new PlaceholderFragment();
+    public static PlaceholderFragment2 newInstance(int index) {
+        PlaceholderFragment2 fragment = new PlaceholderFragment2();
         Bundle bundle = new Bundle();
         bundle.putInt(ARG_SECTION_NUMBER, index);
         fragment.setArguments(bundle);
@@ -73,15 +67,12 @@ public class PlaceholderFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
-        int index = 1;
+        pageViewModel = ViewModelProviders.of(this).get(PageViewModel2.class);
+        int index = 0;
         if (getArguments() != null) {
             index = getArguments().getInt(ARG_SECTION_NUMBER);
         }
-        context = getActivity();
-        prf = new PrefManager(context);
         pageViewModel.setIndex(index);
-
     }
 
     @Override
@@ -89,15 +80,16 @@ public class PlaceholderFragment extends Fragment {
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_product_list, container, false);
+      //  final TextView textView = root.findViewById(R.id.section_label);
         prf = new PrefManager(getContext());
-
         pageViewModel.getText().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer s) {
-                ProductListActivity activity = (ProductListActivity) getActivity();
+                assert s != null;
+                Log.d("subcatindex",String.valueOf(s));
+              //  textView.setText(s);
                 subCat = Global.subCatList;
-                //  Toast.makeText(activity, String.valueOf(s), Toast.LENGTH_SHORT).show();
-                if (subCat.size() > 0) {
+                if (subCat.size()>s) {
                     SubCategory subCategory = subCat.get(s);
                     getProductList(subCategory.getCategory_id());
                 }
@@ -106,12 +98,11 @@ public class PlaceholderFragment extends Fragment {
 
         recyclerView = (RecyclerView) root.findViewById(R.id.recyclerView);
 
-        productLists = new ArrayList();
-        mAdapter = new ProductListAdapter(context, productLists);
+        mAdapter = new ProductListAdapter(getContext(), productLists);
 
         recyclerView.setHasFixedSize(true);
 
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
@@ -120,7 +111,6 @@ public class PlaceholderFragment extends Fragment {
     }
 
     private void getProductList(String getData) {
-
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.PRODUCT_LIST + getData,
                 new Response.Listener<String>() {
                     @Override
@@ -130,6 +120,7 @@ public class PlaceholderFragment extends Fragment {
                         try {
                             jsonObject = new JSONObject(response);
                             if (jsonObject.optInt("success") == 1) {
+                                productLists.clear();
                                 JSONArray jsonarray = null;
                                 try {
                                     jsonarray = jsonObject.getJSONArray("data");
@@ -204,5 +195,4 @@ public class PlaceholderFragment extends Fragment {
         stringRequest.setShouldCache(false);
         MySingleton.getInstance(getContext()).addToRequestQueue(stringRequest);
     }
-
 }

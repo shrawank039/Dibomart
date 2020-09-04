@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -95,6 +96,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
     private ImageView verifiedimg;
     private Boolean mVerified = false;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
+    String session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -402,6 +404,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
                             prf.setString(TAG_LASTNAME, data.optString(TAG_LASTNAME));
                             prf.setString(TAG_EMAIL, data.optString(TAG_EMAIL));
                             prf.setString(TAG_MOBILE, data.optString("telephone"));
+                            prf.setString("session", session);
 
                             Intent intent = new Intent(MobileVerifyActivity.this, MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -432,7 +435,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
-                headers.put("X-Oc-Session", prf.getString("session"));
+                headers.put("X-Oc-Session", session);
                 return headers;
             }
         };
@@ -480,6 +483,45 @@ public class MobileVerifyActivity extends AppCompatActivity {
             }
         };
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+    }
+
+    private void createSession() {
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.GET, ServiceNames.SESSION, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        if (response.optString("success").equals("1")) {
+                            try {
+                                JSONObject jsonObject = response.getJSONObject("data");
+                                session = jsonObject.optString("session");
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                return headers;
+            }
+        };
+        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjReq.setShouldCache(false);
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 
 }

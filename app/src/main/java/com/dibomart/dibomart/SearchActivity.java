@@ -11,6 +11,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.dibomart.dibomart.adapter.ProductListAdapter;
 import com.dibomart.dibomart.model.ProductList;
+import com.dibomart.dibomart.model.ProductOption;
 import com.dibomart.dibomart.model.SubCategory;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
@@ -36,11 +38,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements
+        AdapterView.OnItemSelectedListener{
 
     EditText inputSearch;
     private static PrefManager prf;
     private List<ProductList> productLists = new ArrayList<>();
+    private List<ProductOption> productOptionList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ProductListAdapter mAdapter;
 
@@ -107,6 +111,7 @@ public class SearchActivity extends AppCompatActivity {
                                         JSONObject c = null;
                                         try {
                                             c = jsonarray.getJSONObject(i);
+                                            productOptionList = new ArrayList<>();
                                             ProductList productList = new ProductList();
                                             productList.setName(c.optString("name"));
                                             productList.setId(c.optString("id"));
@@ -119,6 +124,22 @@ public class SearchActivity extends AppCompatActivity {
                                             productList.setProduct_id(c.optString("product_id"));
                                             productList.setDescription(c.optString("description"));
 
+                                            JSONArray jsonArray = c.optJSONArray("options");
+                                            assert jsonArray != null;
+                                            JSONObject jsonObj = jsonArray.optJSONObject(0);
+                                            productList.setProduct_option_id(jsonObj.optString("product_option_id"));
+
+                                            JSONArray jsonArr = jsonObj.optJSONArray("option_value");
+                                            assert jsonArr != null;
+                                            for (int a = 0; a < jsonArr.length(); a++) {
+                                                JSONObject jsonOb = jsonArr.optJSONObject(a);
+                                                ProductOption productOption = new ProductOption();
+                                                productOption.setName(jsonOb.optString("name"));
+                                                productOption.setPrice(jsonOb.optString("price"));
+                                                productOption.setProduct_option_value_id(jsonOb.optString("product_option_value_id"));
+                                                productOptionList.add(productOption);
+                                            }
+                                            productList.setProductOptions(productOptionList);
                                             productLists.add(productList);
                                             mAdapter.notifyDataSetChanged();
 
@@ -163,5 +184,15 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 }

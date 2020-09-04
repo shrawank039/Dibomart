@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         prf = new PrefManager(MainActivity.this);
 
-        if (prf.getString("session").equals(""))
-        createSession();
+        Log.d("TAG","session "+prf.getString("session"));
+
 
         findViewById(R.id.cart).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,46 +139,6 @@ public class MainActivity extends AppCompatActivity {
         prf.setInt("banner_height",a+20);
         prf.setInt("pbanner_height",b+20);
 
-    }
-
-    private void createSession() {
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.SESSION, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        if (response.optString("success").equals("1")) {
-                            try {
-                                JSONObject jsonObject = response.getJSONObject("data");
-                                String session = jsonObject.optString("session");
-                                prf.setString("session", session);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
-                return headers;
-            }
-        };
-        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
-                15000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        jsonObjReq.setShouldCache(false);
-        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 
     public void loadFrag(Fragment f1, String name, FragmentManager fm) {

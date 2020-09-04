@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.request.RequestOptions;
 import com.dibomart.dibomart.Global;
-import com.dibomart.dibomart.PaymentWebViewActivity;
 import com.dibomart.dibomart.PrefManager;
 import com.dibomart.dibomart.ProductListActivity;
 import com.dibomart.dibomart.R;
@@ -116,9 +114,9 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
         prf = new PrefManager(getContext());
         getCategory();
-//        getBannerImage();
-//        getPromoBanner();
-//        getMerchant();
+        getMerchant();
+        getBannerImage();
+        getPromoBanner();
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         merchantRecylerView = view.findViewById(R.id.recyclerViewMerchant);
         view.findViewById(R.id.edt_search).setOnClickListener(new View.OnClickListener() {
@@ -151,6 +149,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
                     Intent in = new Intent(getActivity(), ProductListActivity.class);
                     in.putExtra("category_id", ongoing.getId());
+                    in.putExtra("index", position);
                     startActivity(in);
 
             }
@@ -199,27 +198,15 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
     }
 
     private void getBannerImage() {
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.BANNER_IMG+"/7", null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
 
-                        if (response.optString("success").equals("1")) {
-                            try {
-                                JSONArray jsonArray = response.getJSONArray("data");
                                 RequestOptions requestOptions = new RequestOptions();
                                 requestOptions.centerCrop();
 
-
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject c = null;
-                                    try {
-                                        c = jsonArray.getJSONObject(i);
+                                for (int i = 0; i < Global.banner.size(); i++) {
                                         //  Log.d("TAG", "image : "+c.optString("image_url"));
                                         TextSliderView sliderView = new TextSliderView(getContext());
                                         sliderView
-                                                .image(c.optString("image"))
+                                                .image(Global.banner.get(i))
                                                 //    .description(listName.get(i))
                                                 .setRequestOption(requestOptions)
                                                 .setProgressBarVisible(true);
@@ -229,60 +216,20 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                                         //  sliderView.getBundle().putString("extra", listName.get(i));
                                         homeSlider.addSlider(sliderView);
 
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
                                 }
 
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
-                return headers;
-            }
-        };
-        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
-                15000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        jsonObjReq.setShouldCache(false);
-        MySingleton.getInstance(getContext()).addToRequestQueue(jsonObjReq);
     }
 
     private void getPromoBanner() {
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.BANNER_IMG+"/6", null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        if (response.optString("success").equals("1")) {
-                            try {
-                                JSONArray jsonArray = response.getJSONArray("data");
                                 RequestOptions requestOptions = new RequestOptions();
                                 requestOptions.centerCrop();
 
 
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject c = null;
-                                    try {
-                                        c = jsonArray.getJSONObject(i);
+                                for (int i = 0; i < Global.promoBanner.size(); i++) {
                                         //  Log.d("TAG", "image : "+c.optString("image_url"));
                                         TextSliderView sliderView = new TextSliderView(getContext());
                                         sliderView
-                                                .image(c.optString("image"))
+                                                .image(Global.promoBanner.get(i))
                                                 //    .description(listName.get(i))
                                                 .setRequestOption(requestOptions)
                                                 .setProgressBarVisible(true);
@@ -292,36 +239,8 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                                         //  sliderView.getBundle().putString("extra", listName.get(i));
                                         promoSlider.addSlider(sliderView);
 
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
                                 }
 
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
-                return headers;
-            }
-        };
-        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
-                15000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        jsonObjReq.setShouldCache(false);
-        MySingleton.getInstance(getContext()).addToRequestQueue(jsonObjReq);
     }
 
     private void getCategory() {
@@ -452,6 +371,6 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
     @Override
     public void onSliderClick(BaseSliderView slider) {
-        Toast.makeText(getContext(), slider.getBundle().getString("extra") + "", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(getContext(), slider.getBundle().getString("extra") + "", Toast.LENGTH_SHORT).show();
     }
 }

@@ -1,13 +1,20 @@
 package com.dibomart.dibomart;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -17,11 +24,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.dibomart.dibomart.adapter.CartListAdapter;
-import com.dibomart.dibomart.adapter.ProductListAdapter;
 import com.dibomart.dibomart.model.CartList;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
-import com.dibomart.dibomart.ui.PlaceholderFragment;
+import com.dibomart.dibomart.ui.PageViewModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +44,9 @@ public class CartActivity extends AppCompatActivity {
     private List<CartList> productLists = new ArrayList<>();
     private RecyclerView recyclerView;
     private CartListAdapter mAdapter;
+    private PageViewModel pageViewModel;
+    private ProgressDialog pDialog;
+    private LinearLayout llemptycart, llhascart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +54,11 @@ public class CartActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cart);
         prf = new PrefManager(this);
 
+        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
+
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        llemptycart = findViewById(R.id.ll_emptycart);
+        llhascart = findViewById(R.id.ll_hascart);
 
         productLists = new ArrayList();
         mAdapter = new CartListAdapter(getApplicationContext(), productLists);
@@ -57,25 +70,46 @@ public class CartActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
+        pageViewModel.getText().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer s) {
+                TextView item = findViewById(R.id.txt_total_price);
+                TextView price = findViewById(R.id.txt_total);
+                String a = "Rs. " + s;
+                String b = "Total Rs. " + s;
+                item.setText(a);
+                price.setText(b);
+            }
+        });
+        pageViewModel.getItemText().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer s) {
+                if (s == 0) {
+                    llhascart.setVisibility(View.GONE);
+                    llemptycart.setVisibility(View.VISIBLE);
+                }
+                TextView item = findViewById(R.id.txt_item);
+                String a = "Item " + s;
+                item.setText(a);
+            }
+        });
 
         getProductList();
     }
 
-    public static CartActivity newInstance(int index) {
-        CartActivity fragment = new CartActivity();
-        Bundle bundle = new Bundle();
-        bundle.putInt("position", index);
-        Toast.makeText(fragment, "index", Toast.LENGTH_SHORT).show();
-        return fragment;
-    }
-
     private void getProductList() {
+
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Loading Please wait...");
+        pDialog.setIndeterminate(false);
+        pDialog.setCancelable(false);
+        pDialog.show();
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.CART,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-
+                        pDialog.dismiss();
                         Log.d("TAG", "response : " + response);
                         JSONObject jsonObject = null;
                         try {
@@ -84,6 +118,11 @@ public class CartActivity extends AppCompatActivity {
                                 JSONObject jsonObject1 = jsonObject.getJSONObject("data");
                                 try {
                                     JSONArray jsonarray = jsonObject1.getJSONArray("products");
+                                    JSONArray jsonarrayy = jsonObject1.getJSONArray("totals");
+
+                                    JSONObject m = jsonarrayy.getJSONObject(0);
+                                    Global.cartTotalPrice = m.optInt("value");
+                                    PageViewModel.setIndex(Global.cartTotalPrice);
 
                                     for (int i = 0; i < jsonarray.length(); i++) {
                                         JSONObject c = null;
@@ -97,8 +136,6 @@ public class CartActivity extends AppCompatActivity {
                                             productList.setTotal_price(c.optInt("total_raw"));
                                             productList.setQuantity(c.optString("quantity"));
                                             productList.setItem_count(Integer.parseInt(c.optString("quantity")));
-//                                            productList.setWeight(c.optString("weight"));
-//                                            productList.setQuantity(c.optString("weight_class"));
                                             productList.setProduct_id(c.optString("product_id"));
 
                                             productLists.add(productList);
@@ -115,10 +152,15 @@ public class CartActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        if (productLists.size() == 0) {
+                            llhascart.setVisibility(View.GONE);
+                            llemptycart.setVisibility(View.VISIBLE);
+                        }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                pDialog.dismiss();
                 Toast.makeText(getApplicationContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }) {
@@ -146,5 +188,14 @@ public class CartActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    public void nextClick(View view) {
+        startActivity(new Intent(getApplicationContext(), ShippingMethod.class));
+    }
+
+    public void homeGo(View view) {
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        finish();
     }
 }

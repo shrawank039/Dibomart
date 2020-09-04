@@ -15,8 +15,15 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".SearchActivity"
-            android:windowSoftInputMode="stateAlwaysVisible"/>
+        <activity android:name=".OrderSuccessActivity"></activity>
+        <activity
+            android:name=".OrderConfirmActivity"
+            android:windowSoftInputMode="adjustPan"></activity>
+        <activity android:name=".ShippingMethod" />
+        <activity android:name=".AddAdress" />
+        <activity
+            android:name=".SearchActivity"
+            android:windowSoftInputMode="stateAlwaysVisible" />
         <activity android:name=".ProductDetailsActivity" />
         <activity android:name=".MyTransactionActivity" />
         <activity android:name=".MyOrdersActivity" />

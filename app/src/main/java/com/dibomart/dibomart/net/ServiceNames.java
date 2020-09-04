@@ -8,7 +8,7 @@ public class ServiceNames {
     // https://kolkata.dibomart.in/api/rest/banners
     /*Set BASE URL here*/
 
-    public static String PRODUCTION_API = "https://kolkata.dibomart.in/";
+    public static String PRODUCTION_API = "https://dibomart.in/";
 
     /* Set API VERSION here*/
     public static final String API_VERSION = "api/rest/";
@@ -35,5 +35,15 @@ public class ServiceNames {
     public static final String SEARCH_PRODUCT_LIST = API + "products/search/";
     public static final String SESSION = API + "session";
     public static final String CART = API + "cart";
+    public static final String ADDRESS = API + "shippingaddress";
+    public static final String DELETE_ADDRESS = API + "account/address/";
+    public static final String EXISTING_ADDRESS = API + "shippingaddress/existing";
+    public static final String PAY_ADDRESS = API + "paymentaddress";
+    public static final String EXISTING_PAY_ADDRESS = API + "paymentaddress/existing";
+    public static final String SHIPPING_METHOD = API + "shippingmethods";
+    public static final String PAYMENT_METHOD = API + "paymentmethods";
+    public static final String COUPON = API + "coupon";
+    public static final String CONFIRM = API + "confirm";
+    public static final String PAY = API + "pay";
 
 }

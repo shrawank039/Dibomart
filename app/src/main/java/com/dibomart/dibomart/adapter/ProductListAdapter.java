@@ -44,8 +44,8 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
     private final Context ctx;
 
     private final List<ProductList> moviesList;
-    String priceA;
-    String priceB;
+    String priceA="0";
+    String priceB="0";
     private static PrefManager prf;
     private ProgressDialog pDialog;
 
@@ -93,17 +93,20 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         final ProductList ongoing = moviesList.get(position);
 
-        priceA = ongoing.getPrice();
-        priceB = ongoing.getSpecial_price();
         holder.title.setText(ongoing.getName());
         String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
         holder.quantity.setText(a);
         holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
-        if (!ongoing.getPrice().equals(""))
-        holder.price.setText("\u20B9"+ongoing.getPrice());
-        else
+
+        if (ongoing.getSpecial_price().equals("0")){
+            holder.special_price.setText("\u20B9"+ongoing.getPrice());
             holder.price.setVisibility(View.GONE);
-        holder.special_price.setText("\u20B9"+ongoing.getSpecial_price());
+        }
+        else{
+            holder.price.setText("\u20B9"+ongoing.getPrice());
+            holder.special_price.setText("\u20B9"+ongoing.getSpecial_price());
+        }
+
         Glide.with(ctx)
                 .load(ongoing.getImage_url())
                 .placeholder(R.drawable.placeholder)
@@ -126,42 +129,48 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
         holder.imgAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // Toast.makeText(ctx, "add", Toast.LENGTH_SHORT).show();
-                ongoing.setItem_count(ongoing.getItem_count()+1);
-                int b = Integer.parseInt(priceA)*ongoing.getItem_count();
-                int c = Integer.parseInt(priceB)*ongoing.getItem_count();
-                ongoing.setPrice(String.valueOf(b));
-                ongoing.setSpecial_price(String.valueOf(c));
-                //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-                if (!ongoing.getPrice().equals(""))
-                    holder.price.setText("\u20B9"+ongoing.getPrice());
-                else
-                    holder.price.setVisibility(View.GONE);
-                holder.special_price.setText("\u20B9" + ongoing.getSpecial_price());
-                holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
-                ProductOption productOption = ongoing.getProductOptions().get(0);
-                    addToCart(ongoing.getProduct_option_id(),productOption.getProduct_option_value_id(),
+                if (prf.getString("session").equals("")){
+                    ctx.startActivity(new Intent(ctx.getApplicationContext(), LoginActivity.class));
+                    }else {
+                    priceA = ongoing.getPrice();
+                    priceB = ongoing.getSpecial_price();
+                    ongoing.setItem_count(ongoing.getItem_count() + 1);
+                    int b = Integer.parseInt(priceA) * ongoing.getItem_count();
+                    int c = Integer.parseInt(priceB) * ongoing.getItem_count();
+                    if (ongoing.getSpecial_price().equals("0")) {
+                        holder.price.setVisibility(View.GONE);
+                        holder.special_price.setText("\u20B9" + b);
+                    }else {
+                        holder.price.setText("\u20B9" + b);
+                        holder.special_price.setText("\u20B9" + c);
+                    }
+                    holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
+//                    ongoing.setPrice(String.valueOf(b));
+//                    ongoing.setSpecial_price(String.valueOf(c));
+                    ProductOption productOption = ongoing.getProductOptions().get(0);
+                    addToCart(ongoing.getProduct_option_id(), productOption.getProduct_option_value_id(),
                             ongoing.getProduct_id(), "1");
-
+                }
             }
         });
         holder.imgLess.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ongoing.getItem_count()>0) {
+                if (ongoing.getItem_count()>1) {
                     ongoing.setItem_count(ongoing.getItem_count() - 1);
                     //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-                    ongoing.setItem_count(ongoing.getItem_count()-1);
                     int b = Integer.parseInt(priceA)*ongoing.getItem_count();
                     int c = Integer.parseInt(priceB)*ongoing.getItem_count();
                     ongoing.setPrice(String.valueOf(b));
                     ongoing.setSpecial_price(String.valueOf(c));
-                    //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-                    if (!ongoing.getPrice().equals(""))
-                        holder.price.setText("\u20B9"+ongoing.getPrice());
-                    else
+                    String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
+                    if (ongoing.getSpecial_price().equals("0")) {
                         holder.price.setVisibility(View.GONE);
-                    holder.special_price.setText("\u20B9"+ongoing.getSpecial_price());
+                        holder.special_price.setText("\u20B9" + ongoing.getPrice());
+                    }else {
+                        holder.price.setText("\u20B9" + ongoing.getPrice());
+                        holder.special_price.setText("\u20B9" + ongoing.getSpecial_price());
+                    }
                     holder.item_count.setText(String.valueOf(ongoing.getItem_count()));
                     ProductOption productOption = ongoing.getProductOptions().get(0);
                         addToCart(ongoing.getProduct_option_id(),productOption.getProduct_option_value_id(),
@@ -173,12 +182,6 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
     }
 
     private void addToCart(String product_option_id, String product_option_value_id, String productId, String item_count) {
-        pDialog = new ProgressDialog(ctx);
-        pDialog.setMessage("Loading Please wait...");
-        pDialog.setIndeterminate(false);
-        pDialog.setCancelable(false);
-        pDialog.show();
-
         JSONObject data= new JSONObject();
         try {
             data.put("product_id", productId);
@@ -194,13 +197,13 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        pDialog.dismiss();
+                     //   pDialog.dismiss();
 
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                pDialog.dismiss();
+              //  pDialog.dismiss();
                 Toast.makeText(ctx, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }){

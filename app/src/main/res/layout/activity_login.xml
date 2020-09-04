@@ -56,7 +56,6 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/muli"
-                        android:maxLength="10"
                         android:hint="Email"
                         android:inputType="textEmailAddress"
                         android:paddingLeft="7.0dip"
