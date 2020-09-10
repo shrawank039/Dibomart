@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -21,6 +22,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.request.RequestOptions;
+import com.dibomart.dibomart.AllCategories;
 import com.dibomart.dibomart.Global;
 import com.dibomart.dibomart.PrefManager;
 import com.dibomart.dibomart.ProductListActivity;
@@ -71,6 +73,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
     private List<SubCategory> subCategoryLists = new ArrayList<>();
     private CategoryAdapter mAdapter;
     private MerchantAdapter merchantAdapter;
+    TextView txtAllCat;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -111,6 +114,13 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
          homeSlider = view.findViewById(R.id.slider);
          promoSlider = view.findViewById(R.id.promo_slider);
+         txtAllCat = view.findViewById(R.id.textCategoryViewAll);
+         txtAllCat.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View view) {
+                 startActivity(new Intent(getContext(), AllCategories.class));
+             }
+         });
 
         prf = new PrefManager(getContext());
         getCategory();
@@ -268,13 +278,18 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
                                         JSONArray subArray = c.getJSONArray("categories");
 
-                                        for (int a = 0; a < subArray.length(); a++) {
+                                        for (int a = -1; a < subArray.length(); a++) {
                                             SubCategory subCategory = new SubCategory();
-                                            JSONObject subJson = subArray.getJSONObject(a);
-                                            subCategory.setName(subJson.optString("name"));
-                                            subCategory.setCategory_id(subJson.optString("category_id"));
+                                            if (a==-1){
+                                                subCategory.setName("All Products");
+                                                subCategory.setCategory_id(c.optString("category_id"));
+                                            }else {
+                                                JSONObject subJson = subArray.getJSONObject(a);
+                                                subCategory.setName(subJson.optString("name"));
+                                                subCategory.setCategory_id(subJson.optString("category_id"));
+                                            }
                                             subCategoryLists.add(subCategory);
-                                          //  Log.d("subCat",ongoing.getName()+" "+subCategory.getName());
+                                            //  Log.d("subCat",ongoing.getName()+" "+subCategory.getName());
                                         }
                                         ongoing.setSubCategoryList(subCategoryLists);
                                         Global.ongoingList.add(ongoing);

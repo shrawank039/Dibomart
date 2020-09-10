@@ -45,5 +45,7 @@ public class ServiceNames {
     public static final String COUPON = API + "coupon";
     public static final String CONFIRM = API + "confirm";
     public static final String PAY = API + "pay";
+    public static final String GET_MAIL = "https://dibomart.in/get_email.php?telephone=8100101025";
+    public static final String FORGOT_PASS = API + "forgotten";
 
 }

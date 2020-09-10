@@ -1,5 +1,6 @@
 package com.dibomart.dibomart.ui;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,6 +50,7 @@ public class PlaceholderFragment2 extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private PageViewModel2 pageViewModel;
+    private ProgressDialog pDialog;
     private static PrefManager prf;
     private List<ProductList> productLists = new ArrayList<>();
     private List<ProductOption> productOptionList = new ArrayList<>();
@@ -111,10 +113,16 @@ public class PlaceholderFragment2 extends Fragment {
     }
 
     private void getProductList(String getData) {
+        pDialog = new ProgressDialog(getContext());
+        pDialog.setMessage("Loading Please wait...");
+        pDialog.setIndeterminate(false);
+        pDialog.setCancelable(false);
+        pDialog.show();
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.PRODUCT_LIST + getData,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        pDialog.dismiss();
                         Log.d("TAG", "response : " + response);
                         JSONObject jsonObject = null;
                         try {
@@ -126,7 +134,6 @@ public class PlaceholderFragment2 extends Fragment {
                                     jsonarray = jsonObject.getJSONArray("data");
 
                                     for (int i = 0; i < jsonarray.length(); i++) {
-
                                         productOptionList = new ArrayList<>();
                                         JSONObject c = null;
                                         try {
@@ -135,8 +142,8 @@ public class PlaceholderFragment2 extends Fragment {
                                             productList.setName(c.optString("name"));
                                             productList.setId(c.optString("id"));
                                             productList.setImage_url(c.optString("image"));
-                                            productList.setPrice(c.optString("price"));
-                                            productList.setSpecial_price(c.optString("special"));
+                                            productList.setPrice(c.optInt("price"));
+                                            productList.setSpecial_price(c.optInt("special"));
                                             productList.setWeight(c.optString("weight"));
                                             productList.setItem_count(0);
                                             productList.setWeight_class(c.optString("weight_class"));
@@ -154,18 +161,19 @@ public class PlaceholderFragment2 extends Fragment {
                                                 JSONObject jsonOb = jsonArr.optJSONObject(a);
                                                 ProductOption productOption = new ProductOption();
                                                 productOption.setName(jsonOb.optString("name"));
-                                                productOption.setPrice(jsonOb.optString("price"));
+                                                productOption.setPrice(jsonOb.optInt("price"));
+                                                productOption.setQuantity(jsonOb.optString("quantity"));
                                                 productOption.setProduct_option_value_id(jsonOb.optString("product_option_value_id"));
                                                 productOptionList.add(productOption);
                                             }
                                             productList.setProductOptions(productOptionList);
                                             productLists.add(productList);
-                                            mAdapter.notifyDataSetChanged();
 
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
                                     }
+                                    mAdapter.notifyDataSetChanged();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -177,6 +185,7 @@ public class PlaceholderFragment2 extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                pDialog.dismiss();
                 Toast.makeText(getContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }) {

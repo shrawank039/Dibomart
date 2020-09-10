@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,6 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.dibomart.dibomart.WebView.WebAppInterface;
+
+import java.net.URLDecoder;
+import java.util.Objects;
 
 public class PaymentWebViewActivity extends AppCompatActivity implements View.OnTouchListener, Handler.Callback {
 
@@ -40,6 +44,7 @@ public class PaymentWebViewActivity extends AppCompatActivity implements View.On
         myWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String urll) {
+                Log.d("url", urll);
                 if (urll.contains("checkout/success")) {
                     startActivity(new Intent(getApplicationContext(), OrderSuccessActivity.class)
                     .putExtra("status","1"));
@@ -49,27 +54,23 @@ public class PaymentWebViewActivity extends AppCompatActivity implements View.On
                             .putExtra("status","0"));
                     return true;
                 }
+                else if (urll.contains("account/login")){
+                    Toast.makeText(PaymentWebViewActivity.this, "Password Successfully Changed", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                    finish();
+                    return true;
+                }
                 return false;
             }
         });
 
 
-        // Create an unencoded HTML string
-// then convert the unencoded HTML string into bytes, encode
-// it with Base64, and load the data.
         String unencodedHtml = url;
         String encodedHtml = Base64.encodeToString(unencodedHtml.getBytes(),
                 Base64.NO_PADDING);
         myWebView.loadData(encodedHtml, "text/html", "base64");
 
-//        myWebView.setOnTouchListener(this);
 
-        client = new WebViewClient(){
-            @Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                handler.sendEmptyMessage(CLICK_ON_URL);
-                return false;
-            }
-        };
     }
 
     @Override

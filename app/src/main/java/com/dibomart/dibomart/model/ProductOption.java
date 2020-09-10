@@ -7,7 +7,7 @@ public class ProductOption implements Serializable {
     private String image;
     private String product_option_value_id;
     private String quantity;
-    private String price;
+    private int price;
 
     public ProductOption() {
     }
@@ -44,11 +44,11 @@ public class ProductOption implements Serializable {
         this.quantity = quantity;
     }
 
-    public String getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 }

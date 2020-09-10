@@ -105,7 +105,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
 
         prf = new PrefManager(this);
         try {
-            ispass = getIntent().getStringExtra("password").contains("password");
+            ispass = Objects.requireNonNull(getIntent().getStringExtra("password")).contains("password");
             if(!ispass) {
                 firstname = getIntent().getStringExtra(TAG_FIRSTNAME);
                 lastname = getIntent().getStringExtra(TAG_LASTNAME);
@@ -114,6 +114,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
                 password = getIntent().getStringExtra(TAG_PASSWORD);
             } else {
 
+                
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -247,8 +248,8 @@ public class MobileVerifyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(newPass.getText().length()>1 && retypeNewPass.getText().length()>1) {
                     if (newPass.getText().toString().equals(retypeNewPass.getText().toString())) {
-                        // Loading jsonarray in Background Thread
-                       // new OneLoadAllProductsResetPass().execute();
+                        String code ="";
+                        changePassword(newPass,code);
                     } else {
                         Toast.makeText(MobileVerifyActivity.this, "NewPassword And RetypePass is not Same", Toast.LENGTH_SHORT).show();
                     }
@@ -276,6 +277,40 @@ public class MobileVerifyActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void changePassword(TextInputEditText newPass, String code) {
+        String form_action ="<form id=\"reset\" action=\"https://www.dibomart.in/index.php?route=account/reset&amp;code="+code+"\" method=\"post\" enctype=\"multipart/form-data\" class=\"form-horizontal\">\n" +
+                "        <fieldset>\n" +
+                "          <legend>Enter the new password you wish to use.</legend>\n" +
+                "          <div class=\"form-group\">\n" +
+                "            <label class=\"col-sm-2 control-label\" for=\"input-password\">Password</label>\n" +
+                "            <div class=\"col-sm-10\">\n" +
+                "              <input type=\"password\" name=\"password\" value=\""+newPass+"\" id=\"input-password\" class=\"form-control\" />\n" +
+                "               </div>\n" +
+                "          </div>\n" +
+                "          <div class=\"form-group\">\n" +
+                "            <label class=\"col-sm-2 control-label\" for=\"input-confirm\">Confirm</label>\n" +
+                "            <div class=\"col-sm-10\">\n" +
+                "              <input type=\"password\" name=\"confirm\" value=\""+newPass+"\" id=\"input-confirm\" class=\"form-control\" />\n" +
+                "              </div>\n" +
+                "          </div>\n" +
+                "        </fieldset>\n" +
+                "        <div class=\"buttons clearfix\">\n" +
+                "          <div class=\"pull-left\"><a href=\"#\" class=\"btn btn-default\">Back</a></div>\n" +
+                "          <div class=\"pull-right\">\n" +
+                "            <button type=\"submit\" class=\"btn btn-primary\">Continue</button>\n" +
+                "          </div>\n" +
+                "        </div>\n" +
+                "      </form>\n" +
+                "<script type=\"text/javascript\">\n" +
+                "        window.onload = function () {\n" +
+                "        document.getElementById(\"reset\").submit();\n" +
+                "        }\n" +
+                "    </script>";
+
+        startActivity(new Intent(getApplicationContext(),PaymentWebViewActivity.class)
+                .putExtra("data", form_action));
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {

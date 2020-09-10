@@ -116,10 +116,10 @@ public class SearchActivity extends AppCompatActivity implements
                                             productList.setName(c.optString("name"));
                                             productList.setId(c.optString("id"));
                                             productList.setImage_url(c.optString("image"));
-                                            productList.setPrice(c.optString("price"));
-                                            productList.setSpecial_price(c.optString("special"));
+                                            productList.setPrice(c.optInt("price"));
+                                            productList.setSpecial_price(c.optInt("special"));
                                             productList.setWeight(c.optString("weight"));
-                                            productList.setItem_count(1);
+                                            productList.setItem_count(0);
                                             productList.setWeight_class(c.optString("weight_class"));
                                             productList.setProduct_id(c.optString("product_id"));
                                             productList.setDescription(c.optString("description"));
@@ -135,7 +135,7 @@ public class SearchActivity extends AppCompatActivity implements
                                                 JSONObject jsonOb = jsonArr.optJSONObject(a);
                                                 ProductOption productOption = new ProductOption();
                                                 productOption.setName(jsonOb.optString("name"));
-                                                productOption.setPrice(jsonOb.optString("price"));
+                                                productOption.setPrice(jsonOb.optInt("price"));
                                                 productOption.setProduct_option_value_id(jsonOb.optString("product_option_value_id"));
                                                 productOptionList.add(productOption);
                                             }

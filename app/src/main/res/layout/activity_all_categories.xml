@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    tools:context=".AllCategories">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:onClick="backPress"
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="@dimen/appbar_padding"
+                android:src="@drawable/ic_baseline_arrow_back_24" />
+
+            <TextView
+                android:layout_weight="1"
+                android:popupBackground="@color/colorPrimary"
+                android:layout_width="0dp"
+                android:fontFamily="@font/muli_extrabold"
+                android:text="All Categories"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:onClick="searchClick"
+                android:id="@+id/search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minHeight="?actionBarSize"
+                android:paddingTop="@dimen/appbar_padding"
+                android:paddingBottom="@dimen/appbar_padding"
+                android:src="@drawable/ic_baseline_search_24" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:minHeight="?actionBarSize"
+                android:padding="@dimen/appbar_padding"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:onClick="cartClick"
+                    android:id="@+id/cart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:src="@drawable/cart" />
+                <TextView
+                    android:id="@+id/cart_item"
+                    android:textColor="@color/white"
+                    android:layout_toRightOf="@id/cart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/circle"
+                    android:paddingStart="5dp"
+                    android:textSize="9dp"
+                    android:paddingEnd="5dp"
+                    android:text="0"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_margin="20dp"
+        android:layout_gravity="center"
+        android:scrollbarSize="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

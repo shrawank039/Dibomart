@@ -77,6 +77,8 @@ public class SplashScreen extends Activity {
 
                 // Create a new boolean and preference and set it to true
                 String isSignedin = prf.getString("pincode");
+                Global.cartTotalPrice =prf.getInt("cart_price");
+                Global.cartTotalItem = prf.getInt("cart_item");
 
                 if(!isSignedin.equalsIgnoreCase("")) {
                     //user signedin

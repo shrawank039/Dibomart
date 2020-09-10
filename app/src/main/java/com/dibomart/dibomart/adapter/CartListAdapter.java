@@ -90,13 +90,11 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
         final CartList ongoing = moviesList.get(position);
 
         holder.title.setText(ongoing.getName());
-      //  String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-      //  holder.quantity.setText(a);
+        String a = "Quantity - "+ongoing.getWeight();
+        holder.quantity.setText(a);
         PageViewModel.setitemIndex(moviesList.size());
+        prf.setInt("cart_item",moviesList.size());
         holder.item_count.setText(ongoing.getQuantity());
-//        if (!ongoing.getPrice().equals(""))
-//        holder.price.setText("\u20B9"+ongoing.getPrice());
-//        else
         holder.price.setVisibility(View.GONE);
         holder.special_price.setText("\u20B9"+ongoing.getTotal_price());
         Glide.with(ctx)
@@ -121,6 +119,7 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
                 notifyItemRangeChanged(position, moviesList.size());
                 Global.cartTotalPrice = Global.cartTotalPrice-ongoing.getTotal_price();
                 PageViewModel.setIndex(Global.cartTotalPrice);
+                prf.setInt("cart_item",moviesList.size());
                 PageViewModel.setitemIndex(moviesList.size());
 
             }
@@ -132,8 +131,10 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
                 ongoing.setItem_count(ongoing.getItem_count()+1);
                 ongoing.setQuantity(String.valueOf(ongoing.getItem_count()));
                 int b = priceA*ongoing.getItem_count();
-                Global.cartTotalPrice = Global.cartTotalPrice+b;
+                Global.cartTotalPrice = Global.cartTotalPrice+priceA;
                 PageViewModel.setIndex(Global.cartTotalPrice);
+                prf.setInt("cart_price",Global.cartTotalPrice);
+                prf.setInt("cart_item",ongoing.getItem_count());
                 ongoing.setTotal_price(b);
                 holder.price.setVisibility(View.GONE);
                  holder.special_price.setText("\u20B9" + ongoing.getTotal_price());
@@ -153,10 +154,12 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
                     //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
                     int b = priceA*ongoing.getItem_count();
                     ongoing.setTotal_price(b);
-                    Global.cartTotalPrice = Global.cartTotalPrice-b;
+                    Global.cartTotalPrice = Global.cartTotalPrice-priceA;
                     PageViewModel.setIndex(Global.cartTotalPrice);
-                        holder.price.setVisibility(View.GONE);
-                     holder.special_price.setText("\u20B9"+ongoing.getTotal_price());
+                    prf.setInt("cart_price",Global.cartTotalPrice);
+                    prf.setInt("cart_item",ongoing.getItem_count());
+                    holder.price.setVisibility(View.GONE);
+                    holder.special_price.setText("\u20B9"+ongoing.getTotal_price());
                     holder.item_count.setText(ongoing.getQuantity());
 
                     setQnt(ongoing.getKey(), ongoing.getQuantity());

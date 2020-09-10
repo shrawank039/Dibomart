@@ -1,20 +1,27 @@
 package com.dibomart.dibomart;
 
 import android.content.Intent;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 
 import com.dibomart.dibomart.model.Category;
 import com.dibomart.dibomart.model.SubCategory;
+import com.dibomart.dibomart.ui.PageViewModel;
 import com.dibomart.dibomart.ui.SectionsPagerAdapter2;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +33,11 @@ public class ProductListActivity extends AppCompatActivity implements
     private List<SubCategory> subCategoryList = new ArrayList<>();
     private static PrefManager prf;
     int position;
+    private PageViewModel pageViewModel;
     ViewPager viewPager;
     TabLayout tabs;
+    LinearLayout ll_cart;
+    TextView txtCartItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +47,10 @@ public class ProductListActivity extends AppCompatActivity implements
         subCategoryList = new ArrayList<>();
         viewPager = findViewById(R.id.view_pager);
         tabs = findViewById(R.id.tabs);
+        ll_cart = findViewById(R.id.ll_cart);
+        txtCartItem = findViewById(R.id.cart_item);
 
+        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
         position = getIntent().getIntExtra("index", 0);
 
         Spinner spin = (Spinner) findViewById(R.id.spinner);
@@ -50,6 +63,33 @@ public class ProductListActivity extends AppCompatActivity implements
             Category category = Global.ongoingList.get(i);
             spinnerArray.add(category.getName());
         }
+
+        PageViewModel.setIndex(prf.getInt("cart_price"));
+        PageViewModel.setitemIndex(prf.getInt("cart_item"));
+        pageViewModel.getText().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer s) {
+                TextView price = findViewById(R.id.txt_total);
+                String a = "Rs. " + s;
+                price.setText(a);
+            }
+        });
+        pageViewModel.getItemText().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer s) {
+                if (s == 0) {
+                    ll_cart.setVisibility(View.GONE);
+                    txtCartItem.setVisibility(View.GONE);
+                }else {
+                    ll_cart.setVisibility(View.VISIBLE);
+                    txtCartItem.setVisibility(View.VISIBLE);
+                }
+                TextView item = findViewById(R.id.txt_item);
+                txtCartItem.setText(String.valueOf(s));
+                String a = "Item " + s;
+                item.setText(a);
+            }
+        });
 
         //Creating the ArrayAdapter instance having the country list
         ArrayAdapter aa = new ArrayAdapter(this,R.layout.spinner_item,spinnerArray);
@@ -92,5 +132,9 @@ public class ProductListActivity extends AppCompatActivity implements
     }
     public void cartClick(View view) {
         startActivity(new Intent(getApplicationContext(),CartActivity.class));
+    }
+
+    public void nextClick(View view) {
+        startActivity(new Intent(getApplicationContext(),ShippingMethod.class));
     }
 }

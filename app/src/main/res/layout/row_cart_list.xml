@@ -26,23 +26,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/title"
-                    android:fontFamily="@font/muli_extrabold"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Product Name"
-                    android:textColor="@color/gray"
-                    android:textSize="15sp" />
-        <ImageView
-            android:id="@+id/img_delete"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_margin="5dp"
-            android:src="@drawable/bin" />
+            <TextView
+                android:id="@+id/title"
+                android:fontFamily="@font/muli_extrabold"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Product Name"
+                android:textColor="@color/gray"
+                android:textSize="15sp" />
+            <ImageView
+                android:id="@+id/img_delete"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_margin="5dp"
+                android:src="@drawable/bin" />
         </LinearLayout>
 
         <TextView

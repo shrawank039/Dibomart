@@ -11,8 +11,8 @@ public class ProductList implements Serializable {
     private String weight;
     private int item_count;
     private String product_id;
-    private String price;
-    private String special_price;
+    private int price;
+    private int special_price;
     private String description;
     private String product_option_id;
     private List<ProductOption> productOptions;
@@ -68,19 +68,19 @@ public class ProductList implements Serializable {
         this.product_id = product_id;
     }
 
-    public String getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
-    public String getSpecial_price() {
+    public int getSpecial_price() {
         return special_price;
     }
 
-    public void setSpecial_price(String special_price) {
+    public void setSpecial_price(int special_price) {
         this.special_price = special_price;
     }
 

@@ -23,8 +23,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
     TextView item_count;
     ImageView productImg;
     ImageView favImg,imgAdd,imgLess;
-    String priceA;
-    String priceB;
+    int priceA;
+    int priceB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
         quantity.setText(a);
         item_count.setText(String.valueOf(ongoing.getItem_count()));
-        if (!ongoing.getPrice().equals(""))
+        if (ongoing.getPrice()!=0)
             price.setText("\u20B9"+ongoing.getPrice());
         else
             price.setVisibility(View.GONE);
@@ -83,12 +83,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Toast.makeText(ctx, "add", Toast.LENGTH_SHORT).show();
                 ongoing.setItem_count(ongoing.getItem_count()+1);
-                int b = Integer.parseInt(priceA)*ongoing.getItem_count();
-                int c = Integer.parseInt(priceB)*ongoing.getItem_count();
-                ongoing.setPrice(String.valueOf(b));
-                ongoing.setSpecial_price(String.valueOf(c));
+                int b = priceA*ongoing.getItem_count();
+                int c = priceB*ongoing.getItem_count();
+                ongoing.setPrice(b);
+                ongoing.setSpecial_price(c);
                 //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-                if (!ongoing.getPrice().equals(""))
+                if (ongoing.getPrice()!=0)
                     price.setText("\u20B9"+ongoing.getPrice());
                 else
                     price.setVisibility(View.GONE);
@@ -103,12 +103,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
                     ongoing.setItem_count(ongoing.getItem_count() - 1);
                     //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
                     ongoing.setItem_count(ongoing.getItem_count()-1);
-                    int b = Integer.parseInt(priceA)*ongoing.getItem_count();
-                    int c = Integer.parseInt(priceB)*ongoing.getItem_count();
-                    ongoing.setPrice(String.valueOf(b));
-                    ongoing.setSpecial_price(String.valueOf(c));
+                    int b = priceA*ongoing.getItem_count();
+                    int c = priceB*ongoing.getItem_count();
+                    ongoing.setPrice(b);
+                    ongoing.setSpecial_price(c);
                     //String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
-                    if (!ongoing.getPrice().equals(""))
+                    if (ongoing.getPrice()!=0)
                         price.setText("\u20B9"+ongoing.getPrice());
                     else
                         price.setVisibility(View.GONE);

@@ -234,6 +234,11 @@ public class ShippingMethod extends AppCompatActivity {
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
     private void setPaymentAdd(String key) {
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Loading Please wait...");
+        pDialog.setIndeterminate(false);
+        pDialog.setCancelable(false);
+        pDialog.show();
 
         JSONObject data= new JSONObject();
         try {
@@ -246,12 +251,13 @@ public class ShippingMethod extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
+                        pDialog.dismiss();
                         loadMethod();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //   pDialog.dismiss();
+                pDialog.dismiss();
                 Toast.makeText(getApplicationContext(), "2error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }){

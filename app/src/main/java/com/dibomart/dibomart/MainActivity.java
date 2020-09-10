@@ -10,9 +10,11 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -22,6 +24,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -35,6 +39,7 @@ import com.dibomart.dibomart.fragment.HomeFragment;
 import com.dibomart.dibomart.model.MenuModel;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
+import com.dibomart.dibomart.ui.PageViewModel;
 import com.glide.slider.library.slidertypes.TextSliderView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -59,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     ExpandableListView expandableListView;
     List<MenuModel> headerList = new ArrayList<>();
     HashMap<MenuModel, List<MenuModel>> childList = new HashMap<>();
+    TextView txtCartItem;
+    private PageViewModel pageViewModel;
 
 
     @Override
@@ -77,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.navigation_view);
         drawerLayout = findViewById(R.id.drawer_layout);
         prf = new PrefManager(MainActivity.this);
+        txtCartItem = findViewById(R.id.cart_item);
+        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
 
         Log.d("TAG","session "+prf.getString("session"));
 
@@ -87,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(),CartActivity.class));
             }
         });
+
         expandableListView = findViewById(R.id.expandableListView);
         prepareMenuData();
         populateExpandableList();
@@ -138,6 +148,20 @@ public class MainActivity extends AppCompatActivity {
 
         prf.setInt("banner_height",a+20);
         prf.setInt("pbanner_height",b+20);
+
+        PageViewModel.setitemIndex(prf.getInt("cart_item"));
+
+        pageViewModel.getItemText().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer s) {
+                if (s == 0) {
+                    txtCartItem.setVisibility(View.GONE);
+                }else {
+                    txtCartItem.setVisibility(View.VISIBLE);
+                }
+                txtCartItem.setText(String.valueOf(s));
+            }
+        });
 
     }
 

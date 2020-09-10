@@ -219,34 +219,34 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         Log.d("TAG", "response : " + jsonObject);
-//                        try {
-//                            if (jsonObject.optInt("success") == 1) {
-//                                JSONObject jsonObject1 = jsonObject.getJSONObject("data");
-//                                try {
-//                                    JSONArray jsonarray = jsonObject1.getJSONArray("payment_methods");
-//
-//                                    for (int i = 0; i < jsonarray.length(); i++) {
-//                                        try {
-//                                            JSONObject c = jsonarray.getJSONObject(i);
-//                                            PaymentMethodList shippingMethodList = new PaymentMethodList();
-//                                            shippingMethodList.setTitle(c.optString("title"));
-//                                            shippingMethodList.setSort_order(c.optString("sort_order"));
-//                                            shippingMethodList.setCode(c.optString("code"));
-//
-//                                            paymentMethodLists.add(shippingMethodList);
-//                                            mAdapter.notifyDataSetChanged();
-//
-//                                        } catch (JSONException e) {
-//                                            e.printStackTrace();
-//                                        }
-//                                    }
-//                                } catch (JSONException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
+                        try {
+                            if (jsonObject.optInt("success") == 1) {
+                                JSONObject jsonObject1 = jsonObject.getJSONObject("data");
+                                try {
+                                    JSONArray jsonarray = jsonObject1.getJSONArray("payment_methods");
+
+                                    for (int i = 0; i < jsonarray.length(); i++) {
+                                        try {
+                                            JSONObject c = jsonarray.getJSONObject(i);
+                                            PaymentMethodList shippingMethodList = new PaymentMethodList();
+                                            shippingMethodList.setTitle(c.optString("title"));
+                                            shippingMethodList.setSort_order(c.optString("sort_order"));
+                                            shippingMethodList.setCode(c.optString("code"));
+
+                                            paymentMethodLists.add(shippingMethodList);
+                                            mAdapter.notifyDataSetChanged();
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }, new Response.ErrorListener() {
             @Override

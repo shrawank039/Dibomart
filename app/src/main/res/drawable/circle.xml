@@ -3,7 +3,8 @@
     android:shape="oval">
 
     <!-- view background color -->
-    <solid android:color="@color/login_bottom" />
+    <solid android:color="#2ECA34" />
+
 
 
 </shape>

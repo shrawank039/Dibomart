@@ -70,6 +70,8 @@ public class CartActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
+        getProductList();
+
         pageViewModel.getText().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer s) {
@@ -94,7 +96,6 @@ public class CartActivity extends AppCompatActivity {
             }
         });
 
-        getProductList();
     }
 
     private void getProductList() {
@@ -123,12 +124,16 @@ public class CartActivity extends AppCompatActivity {
                                     JSONObject m = jsonarrayy.getJSONObject(0);
                                     Global.cartTotalPrice = m.optInt("value");
                                     PageViewModel.setIndex(Global.cartTotalPrice);
+                                    prf.setInt("cart_price",Global.cartTotalPrice);
 
                                     for (int i = 0; i < jsonarray.length(); i++) {
                                         JSONObject c = null;
                                         try {
                                             c = jsonarray.getJSONObject(i);
+                                            JSONArray optionArray = c.getJSONArray("option");
+                                            JSONObject optionObj = optionArray.getJSONObject(0);
                                             CartList productList = new CartList();
+                                            productList.setWeight(optionObj.optString("value"));
                                             productList.setName(c.optString("name"));
                                             productList.setKey(c.optString("key"));
                                             productList.setImage_url(c.optString("thumb"));
@@ -140,6 +145,8 @@ public class CartActivity extends AppCompatActivity {
 
                                             productLists.add(productList);
                                             mAdapter.notifyDataSetChanged();
+                                            if (productLists.size()>0)
+                                                llhascart.setVisibility(View.VISIBLE);
 
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -195,7 +202,8 @@ public class CartActivity extends AppCompatActivity {
     }
 
     public void homeGo(View view) {
-        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        startActivity(new Intent(getApplicationContext(), MainActivity.class)
+        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
         finish();
     }
 }

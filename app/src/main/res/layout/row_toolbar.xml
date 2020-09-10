@@ -13,14 +13,32 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <ImageView
-        android:id="@+id/cart"
-        android:layout_alignParentEnd="true"
+
+    <RelativeLayout
+        android:id="@+id/rl_cart"
+        android:onClick="cartClick"
+        android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
         android:minHeight="?actionBarSize"
         android:padding="@dimen/appbar_padding"
-        android:src="@drawable/cart" />
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/cart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:src="@drawable/cart" />
+        <TextView
+            android:id="@+id/cart_item"
+            android:textColor="@color/white"
+            android:layout_toRightOf="@id/cart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/circle"
+            android:paddingStart="5dp"
+            android:textSize="9dp"
+            android:paddingEnd="5dp"
+            android:text="0"/>
+    </RelativeLayout>
 
 </RelativeLayout>
