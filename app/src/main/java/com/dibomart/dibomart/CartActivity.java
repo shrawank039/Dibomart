@@ -125,7 +125,7 @@ public class CartActivity extends AppCompatActivity {
                                     Global.cartTotalPrice = m.optInt("value");
                                     PageViewModel.setIndex(Global.cartTotalPrice);
                                     prf.setInt("cart_price",Global.cartTotalPrice);
-
+                                    prf.setInt("cart_item", jsonarray.length());
                                     for (int i = 0; i < jsonarray.length(); i++) {
                                         JSONObject c = null;
                                         try {

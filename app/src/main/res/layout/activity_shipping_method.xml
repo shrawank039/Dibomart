@@ -183,6 +183,7 @@
 
     <LinearLayout
         android:id="@+id/ll_next"
+        android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"
         android:layout_width="match_parent"

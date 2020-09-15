@@ -19,7 +19,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.dibomart.dibomart.adapter.CategoryAdapter;
 import com.dibomart.dibomart.model.Category;
-import com.dibomart.dibomart.model.SubCategory;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 
@@ -37,7 +36,7 @@ public class AllCategories extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CategoryAdapter mAdapter;
     private static PrefManager prf;
-    private List<SubCategory> subCategoryLists = new ArrayList<>();
+    private List<Category> subCategoryLists = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +44,9 @@ public class AllCategories extends AppCompatActivity {
         setContentView(R.layout.activity_all_categories);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        mAdapter = new CategoryAdapter(getApplicationContext(), Global.ongoingList);
+        mAdapter = new CategoryAdapter(getApplicationContext(), subCategoryLists);
 
         prf = new PrefManager(this);
-        getCategory();
 
         recyclerView.setHasFixedSize(true);
 
@@ -78,6 +76,8 @@ public class AllCategories extends AppCompatActivity {
             }
         }));
 
+        getCategory();
+
     }
 
     private void getCategory() {
@@ -98,28 +98,11 @@ public class AllCategories extends AppCompatActivity {
                                     try {
                                         c = jsonarray.getJSONObject(i);
                                         Category ongoing = new Category();
-                                        subCategoryLists = new ArrayList<>();
                                         ongoing.setName(c.optString("name"));
                                         ongoing.setId(c.optString("category_id"));
                                         ongoing.setImage_url(c.optString("image"));
 
-                                        JSONArray subArray = c.getJSONArray("categories");
-
-                                        for (int a = -1; a < subArray.length(); a++) {
-                                            SubCategory subCategory = new SubCategory();
-                                            if (a==-1){
-                                                subCategory.setName("All Products");
-                                                subCategory.setCategory_id(c.optString("category_id"));
-                                            }else {
-                                                JSONObject subJson = subArray.getJSONObject(a);
-                                                subCategory.setName(subJson.optString("name"));
-                                                subCategory.setCategory_id(subJson.optString("category_id"));
-                                            }
-                                            subCategoryLists.add(subCategory);
-                                            //  Log.d("subCat",ongoing.getName()+" "+subCategory.getName());
-                                        }
-                                        ongoing.setSubCategoryList(subCategoryLists);
-                                        Global.ongoingList.add(ongoing);
+                                        subCategoryLists.add(ongoing);
                                         mAdapter.notifyDataSetChanged();
 
 

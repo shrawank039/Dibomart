@@ -1,5 +1,6 @@
 package com.dibomart.dibomart;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,7 +37,9 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.request.RequestOptions;
 import com.dibomart.dibomart.adapter.ExpandableListAdapter;
 import com.dibomart.dibomart.fragment.HomeFragment;
+import com.dibomart.dibomart.model.Category;
 import com.dibomart.dibomart.model.MenuModel;
+import com.dibomart.dibomart.model.SubCategory;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.dibomart.dibomart.ui.PageViewModel;
@@ -55,6 +58,8 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
+    private static final String TAG_FIRSTNAME = "firstname";
+    private static final String TAG_LASTNAME = "lastname";
     private FragmentManager fragmentManager;
     NavigationView navigationView;
     Toolbar toolbar;
@@ -64,10 +69,11 @@ public class MainActivity extends AppCompatActivity {
     ExpandableListView expandableListView;
     List<MenuModel> headerList = new ArrayList<>();
     HashMap<MenuModel, List<MenuModel>> childList = new HashMap<>();
-    TextView txtCartItem;
+    TextView txtCartItem, header_name;
     private PageViewModel pageViewModel;
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,18 +88,20 @@ public class MainActivity extends AppCompatActivity {
         });
         fragmentManager = getSupportFragmentManager();
         navigationView = findViewById(R.id.navigation_view);
+        View hView =  navigationView.getHeaderView(0);
+        header_name = hView.findViewById(R.id.header_name);
         drawerLayout = findViewById(R.id.drawer_layout);
         prf = new PrefManager(MainActivity.this);
         txtCartItem = findViewById(R.id.cart_item);
         pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
 
-        Log.d("TAG","session "+prf.getString("session"));
+        Log.d("TAG", "session " + prf.getString("session"));
 
 
         findViewById(R.id.cart).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(),CartActivity.class));
+                startActivity(new Intent(getApplicationContext(), CartActivity.class));
             }
         });
 
@@ -104,24 +112,7 @@ public class MainActivity extends AppCompatActivity {
         HomeFragment homeFragment = new HomeFragment();
         loadFrag(homeFragment, prf.getString("pincode"), fragmentManager);
 
-
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                drawerLayout.closeDrawers();
-                switch (item.getItemId()) {
-
-                    case R.id.menu_go_category:
-                              return true;
-                    case R.id.menu_go_profile:
-                       return true;
-                    case R.id.menu_go_logout:
-                        return true;
-                }
-                return false;
-            }
-        });
-
+        header_name.setText(prf.getString(TAG_FIRSTNAME)+" "+prf.getString(TAG_LASTNAME));
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
@@ -140,14 +131,14 @@ public class MainActivity extends AppCompatActivity {
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        float density  = getResources().getDisplayMetrics().density;
-      //  float height =  displayMetrics.heightPixels/density;
-        float width = displayMetrics.widthPixels/density;
-        int a = (int) (width*density/3.189);  // 1920*602
-        int b = (int) (width*density/1.66); // 800*480
+        float density = getResources().getDisplayMetrics().density;
+        //  float height =  displayMetrics.heightPixels/density;
+        float width = displayMetrics.widthPixels / density;
+        int a = (int) (width * density / 3.189);  // 1920*602
+        int b = (int) (width * density / 1.66); // 800*480
 
-        prf.setInt("banner_height",a+20);
-        prf.setInt("pbanner_height",b+20);
+        prf.setInt("banner_height", a + 20);
+        prf.setInt("pbanner_height", b + 20);
 
         PageViewModel.setitemIndex(prf.getInt("cart_item"));
 
@@ -156,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(@Nullable Integer s) {
                 if (s == 0) {
                     txtCartItem.setVisibility(View.GONE);
-                }else {
+                } else {
                     txtCartItem.setVisibility(View.VISIBLE);
                 }
                 txtCartItem.setText(String.valueOf(s));
@@ -199,28 +190,30 @@ public class MainActivity extends AppCompatActivity {
         menuModel = new MenuModel("Shop by Category", true, true, ""); //Menu of Java Tutorials
         headerList.add(menuModel);
         List<MenuModel> childModelsList = new ArrayList<>();
-        MenuModel childModel = new MenuModel("Vegetable", false, false, null);
-        childModelsList.add(childModel);
+        MenuModel childModel;
 
-        childModel = new MenuModel("Fruits", false, false, null);
-        childModelsList.add(childModel);
-
-        childModel = new MenuModel("Oils", false, false, null);
-        childModelsList.add(childModel);
-
+        for (int i = 0; i < Global.ongoingList.size(); i++) {
+            childModel = new MenuModel(Global.ongoingList.get(i).getName(), false, false, null);
+            childModelsList.add(childModel);
+        }
 
         if (menuModel.hasChildren) {
-            Log.d("API123","here");
+            Log.d("API123", "here");
             childList.put(menuModel, childModelsList);
         }
 
         childModelsList = new ArrayList<>();
         menuModel = new MenuModel("My Account", true, true, ""); //Menu of Python Tutorials
         headerList.add(menuModel);
-        childModel = new MenuModel("Account", false, false, null);
+        childModel = new MenuModel("My Order", false, false, null);
         childModelsList.add(childModel);
-
-        childModel = new MenuModel("Address", false, false, null);
+        childModel = new MenuModel("Refund History", false, false, null);
+        childModelsList.add(childModel);
+        childModel = new MenuModel("Replacement History", false, false, null);
+        childModelsList.add(childModel);
+        childModel = new MenuModel("Edit Profile", false, false, null);
+        childModelsList.add(childModel);
+        childModel = new MenuModel("Rate Our App", false, false, null);
         childModelsList.add(childModel);
 
         if (menuModel.hasChildren) {
@@ -236,17 +229,22 @@ public class MainActivity extends AppCompatActivity {
         if (!menuModel.hasChildren) {
             childList.put(menuModel, null);
         }
-        menuModel = new MenuModel("Help &amp; Support", true, false, null); //Menu of Android Tutorial. No sub menus
+        menuModel = new MenuModel("Contact Us", true, false, null); //Menu of Android Tutorial. No sub menus
         headerList.add(menuModel);
         if (!menuModel.hasChildren) {
             childList.put(menuModel, null);
         }
-        menuModel = new MenuModel("Terms &amp; Conditions", true, false, null); //Menu of Android Tutorial. No sub menus
+        menuModel = new MenuModel("Terms & Conditions", true, false, null); //Menu of Android Tutorial. No sub menus
         headerList.add(menuModel);
         if (!menuModel.hasChildren) {
             childList.put(menuModel, null);
         }
-        menuModel = new MenuModel("About Us", true, false, null); //Menu of Android Tutorial. No sub menus
+        menuModel = new MenuModel("Privacy Policy", true, false, null); //Menu of Android Tutorial. No sub menus
+        headerList.add(menuModel);
+        if (!menuModel.hasChildren) {
+            childList.put(menuModel, null);
+        }
+        menuModel = new MenuModel("Return Policy", true, false, null); //Menu of Android Tutorial. No sub menus
         headerList.add(menuModel);
         if (!menuModel.hasChildren) {
             childList.put(menuModel, null);
@@ -270,7 +268,35 @@ public class MainActivity extends AppCompatActivity {
 
                 if (headerList.get(groupPosition).isGroup) {
                     if (!headerList.get(groupPosition).hasChildren) {
-
+                        switch (groupPosition) {
+                            case 0:
+                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                finish();
+                                break;
+                            case 1:
+                                startActivity(new Intent(getApplicationContext(), AddressActivity.class));
+                                break;
+                            case 6:
+                                startActivity(new Intent(getApplicationContext(), ContactUsActivity.class));
+                                break;
+                            case 7:
+                                startActivity(new Intent(getApplicationContext(), WebViewActivity.class)
+                                        .putExtra("link", ServiceNames.TERMS_CONDITIONS));
+                                break;
+                            case 8:
+                                startActivity(new Intent(getApplicationContext(), WebViewActivity.class)
+                                        .putExtra("link", ServiceNames.PRIVACY_POLICY));
+                                break;
+                            case 9:
+                                startActivity(new Intent(getApplicationContext(), WebViewActivity.class)
+                                        .putExtra("link", ServiceNames.RETURN_POLICY));
+                                break;
+                            case 10:
+                                logOut();
+                                break;
+                            default:
+                                break;
+                        }
                         onBackPressed();
                     }
                 }
@@ -285,14 +311,67 @@ public class MainActivity extends AppCompatActivity {
 
                 if (childList.get(headerList.get(groupPosition)) != null) {
                     MenuModel model = childList.get(headerList.get(groupPosition)).get(childPosition);
-                    if (model.id == null) {
+                    if (groupPosition == 2) {
+                        Intent in = new Intent(getApplicationContext(), ProductListActivity.class);
+                        in.putExtra("category_id", Global.ongoingList.get(childPosition).getId());
+                        in.putExtra("index", childPosition);
+                        startActivity(in);
                         onBackPressed();
+                    } else if (childPosition == 3 && groupPosition == 3){
+                        startActivity(new Intent(getApplicationContext(), EditProfileActivity.class));
+                    }
+                    else if (childPosition == 0 && groupPosition == 3){
+                        startActivity(new Intent(getApplicationContext(), MyOrdersActivity.class));
+                    }
+                    else if (childPosition == 2 && groupPosition == 3){
+                        startActivity(new Intent(getApplicationContext(), ReturnActivity.class));
                     }
                 }
 
                 return false;
             }
         });
+    }
+
+    private void logOut() {
+            JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                    Request.Method.POST, ServiceNames.LOGOUT, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            if (response.optInt("success") == 1) {
+                                prf.setString("session", "");
+                                prf.setInt("cart_item", 0);
+                                PageViewModel.setitemIndex(0);
+                                Global.cartTotalItem = 0;
+                                Toast.makeText(MainActivity.this, "Logout Successfully", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(getApplicationContext(), LoginActivity.class)
+                                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                                finish();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                }
+            }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/json; charset=utf-8");
+                    headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                    headers.put("X-Oc-Session", prf.getString("session"));
+                    return headers;
+                }
+            };
+            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
+                    15000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjReq.setShouldCache(false);
+            MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 
 
@@ -327,10 +406,15 @@ public class MainActivity extends AppCompatActivity {
             }, 2000);
         }
     }
+
     @Override
     protected void onStop() {
         // To prevent a memory leak on rotation, make sure to call stopAutoCycle() on the slider before activity or fragment is destroyed
         super.onStop();
+    }
+
+    public void cartClick(View view) {
+        startActivity(new Intent(getApplicationContext(), CartActivity.class));
     }
 
 }

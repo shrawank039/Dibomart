@@ -93,7 +93,7 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
         String a = "Quantity - "+ongoing.getWeight();
         holder.quantity.setText(a);
         PageViewModel.setitemIndex(moviesList.size());
-        prf.setInt("cart_item",moviesList.size());
+      //  prf.setInt("cart_item",moviesList.size());
         holder.item_count.setText(ongoing.getQuantity());
         holder.price.setVisibility(View.GONE);
         holder.special_price.setText("\u20B9"+ongoing.getTotal_price());

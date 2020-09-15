@@ -21,10 +21,11 @@ public class ServiceNames {
 
     public static final String PINCODE =  "https://dibomart.in/pin_api.php?pincode=";
 
-    public static final String CHANGE_PASS = API + "update_password";
+    public static final String CHANGE_PASS = API + "password";
     public static final String USER_REGISTRATION = API + "register";
     public static final String USER_LOGIN = API + "login";
-    public static final String EDIT_PROFILE = API + "edit_user";
+    public static final String LOGOUT = API + "logout";
+    public static final String EDIT_PROFILE = API + "account";
     public static final String BANNER_IMG = API + "banners";
     public static final String AD_BANNER_IMG = API + "banners/7";
     public static final String MANUFACTURERS = API + "manufacturers";
@@ -46,6 +47,10 @@ public class ServiceNames {
     public static final String CONFIRM = API + "confirm";
     public static final String PAY = API + "pay";
     public static final String GET_MAIL = "https://dibomart.in/get_email.php?telephone=8100101025";
-    public static final String FORGOT_PASS = API + "forgotten";
+    public static final String ORDER_HISTORY = API + "customerorders";
+    public static final String CONTACT_US = API + "contact";
+    public static final String TERMS_CONDITIONS = "http://www.dibomart.in/terms.html";
+    public static final String PRIVACY_POLICY = "http://www.dibomart.in/privacy.html";
+    public static final String RETURN_POLICY = "http://www.dibomart.in/return_policy.html";
 
 }

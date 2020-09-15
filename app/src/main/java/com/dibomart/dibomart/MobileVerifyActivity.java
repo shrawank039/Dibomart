@@ -22,7 +22,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.dibomart.dibomart.model.Merchant;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -114,7 +113,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
                 password = getIntent().getStringExtra(TAG_PASSWORD);
             } else {
 
-                
+
             }
         } catch (Exception e) {
             e.printStackTrace();

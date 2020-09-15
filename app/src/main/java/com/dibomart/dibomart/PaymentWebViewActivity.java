@@ -1,5 +1,6 @@
 package com.dibomart.dibomart;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,12 +31,15 @@ public class PaymentWebViewActivity extends AppCompatActivity implements View.On
     private static final int CLICK_ON_URL = 2;
     private final Handler handler = new Handler(this);
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
 
         url = getIntent().getStringExtra("data");
+
+        Log.d("TAG", "url : "+url);
 
         myWebView = (WebView) findViewById(R.id.webview);
         myWebView.getSettings().setJavaScriptEnabled(true);
@@ -48,6 +52,7 @@ public class PaymentWebViewActivity extends AppCompatActivity implements View.On
                 if (urll.contains("checkout/success")) {
                     startActivity(new Intent(getApplicationContext(), OrderSuccessActivity.class)
                     .putExtra("status","1"));
+                    finish();
                     return true;
                 } else if (urll.contains("checkout/cart")){
                     startActivity(new Intent(getApplicationContext(), OrderSuccessActivity.class)

@@ -8,12 +8,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:632440589924:android:e7952c65184f31ce2c9971",
+        "mobilesdk_app_id": "1:632440589924:android:4920fd6c81f6fa312c9971",
         "android_client_info": {
           "package_name": "com.dibomart.dibomart"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "632440589924-irh7lfa51lts5661rq4cnojrh0332fje.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dibomart.dibomart",
+            "certificate_hash": "4134c32671b597ba0c4b6ee68298f4ffb9a262f1"
+          }
+        },
         {
           "client_id": "632440589924-gap3m1eqhlgqqcphbnk3p57ui3j80knt.apps.googleusercontent.com",
           "client_type": 3

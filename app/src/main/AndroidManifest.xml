@@ -10,12 +10,17 @@
         android:allowBackup="true"
         android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".AllCategories"></activity>
+
+        <activity android:name=".ReturnDetailActivity"></activity>
+        <activity android:name=".OrderDetailActivity" />
+        <activity android:name=".ReturnActivity" />
+        <activity android:name=".EditProfileActivity" />
+        <activity android:name=".AllCategories" />
         <activity android:name=".OrderSuccessActivity" />
         <activity
             android:name=".OrderConfirmActivity"

@@ -25,6 +25,7 @@ import com.dibomart.dibomart.adapter.PaymentMethodAdapter;
 import com.dibomart.dibomart.model.PaymentMethodList;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
+import com.dibomart.dibomart.ui.PageViewModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,6 +96,10 @@ public class OrderSuccessActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         pDialog.dismiss();
+                        prf.setInt("cart_item",0);
+                        prf.setInt("cart_price",0);
+                        PageViewModel.setitemIndex(0);
+                        PageViewModel.setIndex(0);
                         Log.d("TAG", "response : " + jsonObject);
 
                         if (jsonObject.optInt("success") == 1) {

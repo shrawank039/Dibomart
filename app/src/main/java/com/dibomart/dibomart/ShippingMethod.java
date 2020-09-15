@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,7 @@ public class ShippingMethod extends AppCompatActivity {
     private List<ShippingMethodList> shippingLists;
     private RecyclerView recyclerView;
     private ShippingMethodAdapter mAdapter;
+    private LinearLayout llnext;
     TextView name, address, pincode, txtChange;
     //  Button btnAddress;
 
@@ -60,6 +62,7 @@ public class ShippingMethod extends AppCompatActivity {
         address = findViewById(R.id.txt_address);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         txtChange = findViewById(R.id.txt_change);
+        llnext = findViewById(R.id.ll_next);
 
         mAdapter = new ShippingMethodAdapter(getApplicationContext(), shippingLists);
 
@@ -136,6 +139,7 @@ public class ShippingMethod extends AppCompatActivity {
 
                                             shippingLists.add(shippingMethodList);
                                             mAdapter.notifyDataSetChanged();
+                                            llnext.setVisibility(View.VISIBLE);
 
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -214,7 +218,7 @@ public class ShippingMethod extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //   pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "1error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "01error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }){
             @Override
@@ -258,7 +262,7 @@ public class ShippingMethod extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "2error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "02error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }){
             @Override

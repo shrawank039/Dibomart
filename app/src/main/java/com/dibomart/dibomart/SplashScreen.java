@@ -16,6 +16,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.request.RequestOptions;
+import com.dibomart.dibomart.model.Category;
+import com.dibomart.dibomart.model.SubCategory;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.glide.slider.library.slidertypes.TextSliderView;
@@ -26,12 +28,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 public class SplashScreen extends Activity {
 
-    private static final int SPLASH_SHOW_TIME = 2000;
+    private static final int SPLASH_SHOW_TIME = 500;
+    private List<SubCategory> subCategoryLists = new ArrayList<>();
 
     //Prefrance
     private static PrefManager prf;
@@ -42,13 +46,13 @@ public class SplashScreen extends Activity {
         setContentView(R.layout.activity_splash_screen);
 
         prf = new PrefManager(SplashScreen.this);
+        Global.ongoingList = new ArrayList();
 
         if (!prf.getString("s_key").equals("")) {
-            getBannerImage();
-            getPromoBanner();
+            getCategory();
+        }else {
+            new BackgroundSplashTask().execute();
         }
-
-        new BackgroundSplashTask().execute();
 
     }
 
@@ -123,11 +127,12 @@ public class SplashScreen extends Activity {
                                 e.printStackTrace();
                             }
                         }
+                        new BackgroundSplashTask().execute();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "12 " + error.toString(), Toast.LENGTH_SHORT).show();
             }
         }){
             @Override
@@ -145,24 +150,48 @@ public class SplashScreen extends Activity {
         jsonObjReq.setShouldCache(false);
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
-
-    private void getPromoBanner() {
+    private void getCategory() {
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.BANNER_IMG+"/6", null,
+                Request.Method.GET, ServiceNames.ALL_CATEGORIES, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                      //  Global.ongoingList.clear();
 
                         if (response.optString("success").equals("1")) {
+                            JSONArray jsonarray = null;
                             try {
-                                JSONArray jsonArray = response.getJSONArray("data");
+                                jsonarray = response.getJSONArray("data");
 
-                                for (int i = 0; i < jsonArray.length(); i++) {
+                                for (int i = 0; i < jsonarray.length(); i++) {
+
                                     JSONObject c = null;
                                     try {
-                                        c = jsonArray.getJSONObject(i);
-                                        Log.d("TAG", "image : "+c.optString("image"));
-                                        Global.promoBanner.add(c.optString("image"));
+                                        c = jsonarray.getJSONObject(i);
+                                        Category ongoing = new Category();
+                                        subCategoryLists = new ArrayList<>();
+                                        ongoing.setName(c.optString("name"));
+                                        ongoing.setId(c.optString("category_id"));
+                                        ongoing.setImage_url(c.optString("image"));
+
+                                        JSONArray subArray = c.getJSONArray("categories");
+
+                                        for (int a = -1; a < subArray.length(); a++) {
+                                            SubCategory subCategory = new SubCategory();
+                                            if (a==-1){
+                                                subCategory.setName("All Products");
+                                                subCategory.setCategory_id(c.optString("category_id"));
+                                            }else {
+                                                JSONObject subJson = subArray.getJSONObject(a);
+                                                subCategory.setName(subJson.optString("name"));
+                                                subCategory.setCategory_id(subJson.optString("category_id"));
+                                            }
+                                            subCategoryLists.add(subCategory);
+                                            //  Log.d("subCat",ongoing.getName()+" "+subCategory.getName());
+                                        }
+                                        ongoing.setSubCategoryList(subCategoryLists);
+                                        Global.ongoingList.add(ongoing);
+
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -172,12 +201,13 @@ public class SplashScreen extends Activity {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            getBannerImage();
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "13 " + error.toString(), Toast.LENGTH_SHORT).show();
             }
         }){
             @Override

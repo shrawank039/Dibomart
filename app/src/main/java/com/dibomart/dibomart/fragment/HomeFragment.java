@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -123,7 +124,6 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
          });
 
         prf = new PrefManager(getContext());
-        getCategory();
         getMerchant();
         getBannerImage();
         getPromoBanner();
@@ -136,8 +136,8 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
             }
         });
 
-        Global.ongoingList = new ArrayList();
-        Global.subCatList = new ArrayList<SubCategory>();
+//        Global.ongoingList = new ArrayList();
+//        Global.subCatList = new ArrayList<SubCategory>();
         merchantList = new ArrayList();
 
         mAdapter = new CategoryAdapter(getActivity(), Global.ongoingList);
@@ -148,6 +148,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
 
         // row click listenerMyDividerItemDecoration
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new RecyclerTouchListener.ClickListener() {
@@ -231,16 +232,26 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
     }
 
     private void getPromoBanner() {
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.GET, ServiceNames.BANNER_IMG+"/6", null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        if (response.optString("success").equals("1")) {
+                            try {
                                 RequestOptions requestOptions = new RequestOptions();
                                 requestOptions.centerCrop();
+                                JSONArray jsonArray = response.getJSONArray("data");
 
-
-                                for (int i = 0; i < Global.promoBanner.size(); i++) {
-                                        //  Log.d("TAG", "image : "+c.optString("image_url"));
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject c = null;
+                                    try {
+                                        c = jsonArray.getJSONObject(i);
+                                        Log.d("TAG", "image : "+c.optString("image"));
                                         TextSliderView sliderView = new TextSliderView(getContext());
                                         sliderView
-                                                .image(Global.promoBanner.get(i))
-                                                //    .description(listName.get(i))
+                                                .image(c.optString("image"))
                                                 .setRequestOption(requestOptions)
                                                 .setProgressBarVisible(true);
 
@@ -248,53 +259,6 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                                         sliderView.bundle(new Bundle());
                                         //  sliderView.getBundle().putString("extra", listName.get(i));
                                         promoSlider.addSlider(sliderView);
-
-                                }
-
-    }
-
-    private void getCategory() {
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.ALL_CATEGORIES, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        if (response.optString("success").equals("1")) {
-                            JSONArray jsonarray = null;
-                            try {
-                                jsonarray = response.getJSONArray("data");
-
-                                for (int i = 0; i < jsonarray.length(); i++) {
-
-                                    JSONObject c = null;
-                                    try {
-                                        c = jsonarray.getJSONObject(i);
-                                        Category ongoing = new Category();
-                                        subCategoryLists = new ArrayList<>();
-                                        ongoing.setName(c.optString("name"));
-                                        ongoing.setId(c.optString("category_id"));
-                                        ongoing.setImage_url(c.optString("image"));
-
-                                        JSONArray subArray = c.getJSONArray("categories");
-
-                                        for (int a = -1; a < subArray.length(); a++) {
-                                            SubCategory subCategory = new SubCategory();
-                                            if (a==-1){
-                                                subCategory.setName("All Products");
-                                                subCategory.setCategory_id(c.optString("category_id"));
-                                            }else {
-                                                JSONObject subJson = subArray.getJSONObject(a);
-                                                subCategory.setName(subJson.optString("name"));
-                                                subCategory.setCategory_id(subJson.optString("category_id"));
-                                            }
-                                            subCategoryLists.add(subCategory);
-                                            //  Log.d("subCat",ongoing.getName()+" "+subCategory.getName());
-                                        }
-                                        ongoing.setSubCategoryList(subCategoryLists);
-                                        Global.ongoingList.add(ongoing);
-                                        mAdapter.notifyDataSetChanged();
-
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -309,7 +273,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
             }
         }){
             @Override
@@ -326,7 +290,84 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         jsonObjReq.setShouldCache(false);
         MySingleton.getInstance(getContext()).addToRequestQueue(jsonObjReq);
+
     }
+
+//    private void getCategory() {
+//        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+//                Request.Method.GET, ServiceNames.ALL_CATEGORIES, null,
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        Global.ongoingList.clear();
+//
+//                        if (response.optString("success").equals("1")) {
+//                            JSONArray jsonarray = null;
+//                            try {
+//                                jsonarray = response.getJSONArray("data");
+//
+//                                for (int i = 0; i < jsonarray.length(); i++) {
+//
+//                                    JSONObject c = null;
+//                                    try {
+//                                        c = jsonarray.getJSONObject(i);
+//                                        Category ongoing = new Category();
+//                                        subCategoryLists = new ArrayList<>();
+//                                        ongoing.setName(c.optString("name"));
+//                                        ongoing.setId(c.optString("category_id"));
+//                                        ongoing.setImage_url(c.optString("image"));
+//
+//                                        JSONArray subArray = c.getJSONArray("categories");
+//
+//                                        for (int a = -1; a < subArray.length(); a++) {
+//                                            SubCategory subCategory = new SubCategory();
+//                                            if (a==-1){
+//                                                subCategory.setName("All Products");
+//                                                subCategory.setCategory_id(c.optString("category_id"));
+//                                            }else {
+//                                                JSONObject subJson = subArray.getJSONObject(a);
+//                                                subCategory.setName(subJson.optString("name"));
+//                                                subCategory.setCategory_id(subJson.optString("category_id"));
+//                                            }
+//                                            subCategoryLists.add(subCategory);
+//                                            //  Log.d("subCat",ongoing.getName()+" "+subCategory.getName());
+//                                        }
+//                                        ongoing.setSubCategoryList(subCategoryLists);
+//                                        Global.ongoingList.add(ongoing);
+//                                        mAdapter.notifyDataSetChanged();
+//
+//
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Toast.makeText(getContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+//            }
+//        }){
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                HashMap<String, String> headers = new HashMap<String, String>();
+//                headers.put("Content-Type", "application/json; charset=utf-8");
+//                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+//                return headers;
+//            }
+//        };
+//        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
+//                15000,
+//                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+//                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+//        jsonObjReq.setShouldCache(false);
+//        MySingleton.getInstance(getContext()).addToRequestQueue(jsonObjReq);
+//    }
 
     private void getMerchant() {
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(

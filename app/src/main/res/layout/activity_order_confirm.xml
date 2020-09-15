@@ -140,7 +140,7 @@
             android:textColor="@color/colorPrimary"
             android:fontFamily="@font/muli_extrabold"
             android:layout_height="wrap_content"
-            android:text="Sub-Total"/>
+            android:text="Total"/>
         <TextView
             android:id="@+id/txt_total"
             android:layout_width="wrap_content"
@@ -309,6 +309,8 @@
     </androidx.cardview.widget.CardView>
 
     <Button
+        android:visibility="gone"
+        android:id="@+id/btn_confirm"
         android:onClick="confirmClick"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

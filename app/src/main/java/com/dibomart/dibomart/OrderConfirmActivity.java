@@ -54,8 +54,9 @@ public class OrderConfirmActivity extends AppCompatActivity {
     private PaymentMethodAdapter mAdapter;
     TextView txtCoupon;
     EditText edtCoupon;
+    String pay_method="";
     LinearLayout llApply, llRemove, llDiscount;
-    Button btnApply, btnRemove;
+    Button btnApply, btnRemove, btnConfirm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         llDiscount = findViewById(R.id.ll_discount);
         btnApply = findViewById(R.id.btn_apply);
         btnRemove = findViewById(R.id.btn_delete);
+        btnConfirm = findViewById(R.id.btn_confirm);
 
 //        if (llDiscount.getVisibility() == View.VISIBLE){
 //            llApply.setVisibility(View.GONE);
@@ -88,22 +90,21 @@ public class OrderConfirmActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        btnApply.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setCoupon(edtCoupon.getText().toString().trim());
-            }
-        });
-        btnRemove.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deleteCoupon();
-            }
-        });
-
-        loadMethod();
+//        btnApply.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                setCoupon(edtCoupon.getText().toString().trim());
+//            }
+//        });
+//        btnRemove.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                deleteCoupon();
+//            }
+//        });
 
         getProductList();
+        loadMethod();
 
     }
 
@@ -235,6 +236,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
                                             paymentMethodLists.add(shippingMethodList);
                                             mAdapter.notifyDataSetChanged();
+                                            btnConfirm.setVisibility(View.VISIBLE);
 
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -251,7 +253,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "02error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "04error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }) {
             @Override
@@ -362,7 +364,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "05error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }){
             @Override
@@ -389,21 +391,19 @@ public class OrderConfirmActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.PAY,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.CONFIRM,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         pDialog.dismiss();
                         startActivity(new Intent(getApplicationContext(),PaymentWebViewActivity.class)
                                 .putExtra("data", response));
-
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "06error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }) {
             @Override
@@ -423,6 +423,45 @@ public class OrderConfirmActivity extends AppCompatActivity {
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
 
+//    private void cod() {
+//        pDialog = new ProgressDialog(this);
+//        pDialog.setMessage("Loading Please wait...");
+//        pDialog.setIndeterminate(false);
+//        pDialog.setCancelable(false);
+//        pDialog.show();
+//
+//        StringRequest stringRequest = new StringRequest(Request.Method.PUT, ServiceNames.CONFIRM,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        pDialog.dismiss();
+//                        startActivity(new Intent(getApplicationContext(),OrderSuccessActivity.class));
+//                        finish();
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                pDialog.dismiss();
+//                Toast.makeText(getApplicationContext(), "error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                HashMap<String, String> headers = new HashMap<String, String>();
+//                headers.put("Content-Type", "application/json; charset=utf-8");
+//                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+//                headers.put("X-Oc-Session", prf.getString("session"));
+//                return headers;
+//            }
+//        };
+//        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+//                15000,
+//                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+//                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+//        stringRequest.setShouldCache(false);
+//        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+//    }
+
     private void confirm() {
         pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading Please wait...");
@@ -439,14 +478,27 @@ public class OrderConfirmActivity extends AppCompatActivity {
                         Log.d("TAG", "response : " + jsonObject);
 
                         if (jsonObject.optInt("success") == 1) {
-                            pay();
+                            try {
+                                JSONObject data = jsonObject.getJSONObject("data");
+                                pay_method = data.optString("payment_code");
+                                if (pay_method.equals("cod")) {
+                                    startActivity(new Intent(getApplicationContext(),OrderSuccessActivity.class)
+                                            .putExtra("status","1"));
+                                    finish();
+                                }
+                                else
+                                    pay();
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "08error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }) {
             @Override

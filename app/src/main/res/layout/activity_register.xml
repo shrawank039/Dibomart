@@ -92,22 +92,22 @@
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1.0dip">
+<!--                    <com.google.android.material.textfield.TextInputLayout-->
+<!--                        android:layout_width="fill_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="1.0dip">-->
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/username"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/muli"
-                            android:hint="Username"
-                            android:inputType="textPersonName"
-                            android:maxLength="20"
-                            android:paddingLeft="7.0dip"
-                            android:textSize="13sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
+<!--                        <com.google.android.material.textfield.TextInputEditText-->
+<!--                            android:id="@+id/username"-->
+<!--                            android:layout_width="fill_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/muli"-->
+<!--                            android:hint="Username"-->
+<!--                            android:inputType="textPersonName"-->
+<!--                            android:maxLength="20"-->
+<!--                            android:paddingLeft="7.0dip"-->
+<!--                            android:textSize="13sp" />-->
+<!--                    </com.google.android.material.textfield.TextInputLayout>-->
 
 
                     <com.google.android.material.textfield.TextInputLayout
