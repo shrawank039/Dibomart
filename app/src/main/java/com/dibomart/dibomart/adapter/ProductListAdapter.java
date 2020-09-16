@@ -50,6 +50,7 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
     private final List<ProductList> moviesList;
     int priceA = 0;
     int priceB=  0;
+
     int posi = 0;
     List<String> spinnerArray;
     private static PrefManager prf;
@@ -101,6 +102,8 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
         final ProductList ongoing = moviesList.get(position);
 
         holder.title.setText(ongoing.getName());
+        final int[] price = {0};
+        final int[] specialPrice = {0};
 
         for (int i = 0; i < ongoing.getProductOptions().size(); i++) {
             spinnerArray.add(" Quantity - "+ongoing.getProductOptions().get(i).getName());
@@ -117,17 +120,18 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
             //    Toast.makeText(ctx, String.valueOf(ongoing.getProductOptions().get(i).getPrice()), Toast.LENGTH_SHORT).show();
                 holder.item_count.setText("0");
-                Global.ongoingPrice = ongoing.getPrice()+ongoing.getProductOptions().get(i).getPrice();
-                Global.ongoingSpecialPrice = ongoing.getSpecial_price()+ongoing.getProductOptions().get(i).getPrice();
+                ongoing.setItem_count(0);
+                price[0] = ongoing.getPrice()+ongoing.getProductOptions().get(i).getPrice();
+                specialPrice[0] = ongoing.getSpecial_price()+ongoing.getProductOptions().get(i).getPrice();
 
                 posi = i;
                 if (ongoing.getSpecial_price()==0){
-                    holder.special_price.setText("\u20B9"+Global.ongoingPrice);
+                    holder.special_price.setText("\u20B9"+ price[0]);
                     holder.price.setVisibility(View.GONE);
                 }
                 else{
-                    holder.price.setText("\u20B9"+Global.ongoingPrice);
-                    holder.special_price.setText("\u20B9"+Global.ongoingSpecialPrice);
+                    holder.price.setText("\u20B9"+ price[0]);
+                    holder.special_price.setText("\u20B9"+ specialPrice[0]);
                 }
 
             }
@@ -162,14 +166,15 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
         holder.imgAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+               // Toast.makeText(ctx, ongoing.getName(), Toast.LENGTH_SHORT).show();
                 if (prf.getString("session").equals("")){
                     ctx.startActivity(new Intent(ctx.getApplicationContext(), LoginActivity.class));
                     }else {
-                    priceA = Global.ongoingPrice;
-                    priceB = Global.ongoingSpecialPrice;
+                    priceA = price[0];
+                    priceB = specialPrice[0];
                     ongoing.setItem_count(ongoing.getItem_count() + 1);
                     if (ongoing.getItem_count()==1){
-                    Global.cartTotalItem = Global.cartTotalItem+1;
+                    Global.cartTotalItem = prf.getInt("cart_item")+1;
                     prf.setInt("cart_item",Global.cartTotalItem);
                     PageViewModel.setitemIndex(Global.cartTotalItem);
                     }
@@ -201,11 +206,10 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
             public void onClick(View v) {
                 if (ongoing.getItem_count()>1) {
                     ongoing.setItem_count(ongoing.getItem_count() - 1);
-                    priceA = Global.ongoingPrice;
-                    priceB = Global.ongoingSpecialPrice;
+                    priceA = price[0];//Global.ongoingPrice;
+                    priceB = specialPrice[0];//Global.ongoingSpecialPrice;
                     int b = priceA*ongoing.getItem_count();
                     int c = priceB*ongoing.getItem_count();
-                    String a = "Quantity - "+ongoing.getWeight()+" "+ongoing.getWeight_class();
                     if (ongoing.getSpecial_price()==0) {
                         holder.price.setVisibility(View.GONE);
                         holder.special_price.setText("\u20B9" + b);

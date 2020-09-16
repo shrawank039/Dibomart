@@ -90,18 +90,18 @@ public class OrderConfirmActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-//        btnApply.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                setCoupon(edtCoupon.getText().toString().trim());
-//            }
-//        });
-//        btnRemove.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                deleteCoupon();
-//            }
-//        });
+        btnApply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setCoupon(edtCoupon.getText().toString().trim());
+            }
+        });
+        btnRemove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteCoupon();
+            }
+        });
 
         getProductList();
         loadMethod();
@@ -131,21 +131,21 @@ public class OrderConfirmActivity extends AppCompatActivity {
                                 try {
                                     JSONArray jsonarray = jsonObject1.getJSONArray("totals");
 
-                                    if (jsonarray.length()>2) {
+                                    if (jsonarray.length()>3) {
                                         JSONObject c = null;
                                         try {
                                             c = jsonarray.getJSONObject(0);
                                             TextView subTotal = findViewById(R.id.txt_subtotal);
                                             String a = "Rs. " + c.optInt("value");
                                             subTotal.setText(a);
-                                            c = jsonarray.getJSONObject(1);
+                                            c = jsonarray.getJSONObject(2);
                                             TextView discount = findViewById(R.id.txt_discount);
                                             String b = "Rs. " + c.optInt("value");
                                             discount.setText(b);
                                             llDiscount.setVisibility(View.VISIBLE);
                                             llApply.setVisibility(View.GONE);
                                             llRemove.setVisibility(View.VISIBLE);
-                                            c = jsonarray.getJSONObject(2);
+                                            c = jsonarray.getJSONObject(3);
                                             TextView total = findViewById(R.id.txt_total);
                                             String d = "Rs. " + c.optInt("value");
                                             total.setText(d);
@@ -165,10 +165,13 @@ public class OrderConfirmActivity extends AppCompatActivity {
                                             String a = "Rs. " + c.optInt("value");
                                             subTotal.setText(a);
 
+                                         //   c = jsonarray.getJSONObject(1);
+
+
                                             llDiscount.setVisibility(View.GONE);
                                             llApply.setVisibility(View.VISIBLE);
                                             llRemove.setVisibility(View.GONE);
-                                            c = jsonarray.getJSONObject(1);
+                                            c = jsonarray.getJSONObject(2);
                                             TextView total = findViewById(R.id.txt_total);
                                             String d = "Rs. " + c.optInt("value");
                                             total.setText(d);

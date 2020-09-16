@@ -209,6 +209,9 @@ public class PincodeActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         }
+                        Intent intent = new Intent(PincodeActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
                     }
                 }, new Response.ErrorListener() {
             @Override
