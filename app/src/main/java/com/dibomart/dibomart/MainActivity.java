@@ -207,9 +207,9 @@ public class MainActivity extends AppCompatActivity {
         headerList.add(menuModel);
         childModel = new MenuModel("My Order", false, false, null);
         childModelsList.add(childModel);
-        childModel = new MenuModel("Refund History", false, false, null);
-        childModelsList.add(childModel);
-        childModel = new MenuModel("Replacement History", false, false, null);
+//        childModel = new MenuModel("Refund History", false, false, null);
+//        childModelsList.add(childModel);
+        childModel = new MenuModel("Return History", false, false, null);
         childModelsList.add(childModel);
         childModel = new MenuModel("Edit Profile", false, false, null);
         childModelsList.add(childModel);
@@ -249,7 +249,11 @@ public class MainActivity extends AppCompatActivity {
         if (!menuModel.hasChildren) {
             childList.put(menuModel, null);
         }
-        menuModel = new MenuModel("Logout", true, false, null); //Menu of Android Tutorial. No sub menus
+        if (prf.getString("customer_id").equals("")){
+            menuModel = new MenuModel("Login", true, false, null); //Menu of Android Tutorial. No sub menus
+        }else {
+            menuModel = new MenuModel("Logout", true, false, null); //Menu of Android Tutorial. No sub menus
+        }
         headerList.add(menuModel);
         if (!menuModel.hasChildren) {
             childList.put(menuModel, null);
@@ -292,6 +296,9 @@ public class MainActivity extends AppCompatActivity {
                                         .putExtra("link", ServiceNames.RETURN_POLICY));
                                 break;
                             case 10:
+                                if (prf.getString("customer_id").equals(""))
+                                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                                else
                                 logOut();
                                 break;
                             default:
@@ -317,14 +324,14 @@ public class MainActivity extends AppCompatActivity {
                         in.putExtra("index", childPosition);
                         startActivity(in);
                         onBackPressed();
-                    } else if (childPosition == 3 && groupPosition == 3){
+                    } else if (childPosition == 2 && groupPosition == 3){
                         startActivity(new Intent(getApplicationContext(), EditProfileActivity.class));
                     }
                     else if (childPosition == 0 && groupPosition == 3){
                         startActivity(new Intent(getApplicationContext(), MyOrdersActivity.class));
                     }
-                    else if (childPosition == 2 && groupPosition == 3){
-                        startActivity(new Intent(getApplicationContext(), ReturnActivity.class));
+                    else if (childPosition == 1 && groupPosition == 3){
+                        startActivity(new Intent(getApplicationContext(), ReturnHistoryActivity.class));
                     }
                 }
 
@@ -342,6 +349,7 @@ public class MainActivity extends AppCompatActivity {
 
                             if (response.optInt("success") == 1) {
                                 prf.setString("session", "");
+                                prf.setString("customer_id","");
                                 prf.setInt("cart_item", 0);
                                 PageViewModel.setitemIndex(0);
                                 Global.cartTotalItem = 0;

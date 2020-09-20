@@ -15,8 +15,9 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-
-        <activity android:name=".ReturnDetailActivity"></activity>
+        <activity android:name=".ReturnDetailsActivity"></activity>
+        <activity android:name=".ReturnHistoryActivity" />
+        <activity android:name=".ReturnDetailActivity" />
         <activity android:name=".OrderDetailActivity" />
         <activity android:name=".ReturnActivity" />
         <activity android:name=".EditProfileActivity" />

@@ -62,7 +62,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_confirm);
-        prf = new PrefManager(this);
 
         prf = new PrefManager(this);
         paymentMethodLists = new ArrayList<>();
@@ -75,11 +74,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
         btnApply = findViewById(R.id.btn_apply);
         btnRemove = findViewById(R.id.btn_delete);
         btnConfirm = findViewById(R.id.btn_confirm);
-
-//        if (llDiscount.getVisibility() == View.VISIBLE){
-//            llApply.setVisibility(View.GONE);
-//            llRemove.setVisibility(View.VISIBLE);
-//        }
 
         mAdapter = new PaymentMethodAdapter(getApplicationContext(), paymentMethodLists);
 
@@ -104,7 +98,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
         });
 
         getProductList();
-        loadMethod();
 
     }
 
@@ -165,9 +158,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
                                             String a = "Rs. " + c.optInt("value");
                                             subTotal.setText(a);
 
-                                         //   c = jsonarray.getJSONObject(1);
-
-
                                             llDiscount.setVisibility(View.GONE);
                                             llApply.setVisibility(View.VISIBLE);
                                             llRemove.setVisibility(View.GONE);
@@ -191,6 +181,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        loadMethod();
                     }
                 }, new Response.ErrorListener() {
             @Override

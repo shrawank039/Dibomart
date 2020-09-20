@@ -1,6 +1,7 @@
 package com.dibomart.dibomart;
 
 import com.dibomart.dibomart.model.Category;
+import com.dibomart.dibomart.model.OrderedProductList;
 import com.dibomart.dibomart.model.SubCategory;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class Global {
     public static int shippingCharges = 0;
     public static int ongoingPrice = 0;
     public static int ongoingSpecialPrice = 0;
+    public static OrderedProductList orderedProductList;
     public static ArrayList<String> banner = new ArrayList<String>();
 
 }

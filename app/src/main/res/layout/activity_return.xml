@@ -1,9 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ReturnActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:onClick="backPress"
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minHeight="?actionBarSize"
+                android:padding="@dimen/appbar_padding"
+                android:src="@drawable/ic_baseline_arrow_back_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="Return Request"
+                android:fontFamily="@font/muli_extrabold"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:fontFamily="@font/muli_extrabold"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Is Packet Opened?"
+            android:textSize="15sp" />
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton android:id="@+id/open"
+            android:fontFamily="@font/muli"
+            android:textSize="13sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open"
+            android:onClick="onRadioStatusClicked"/>
+        <RadioButton android:id="@+id/packed"
+            android:fontFamily="@font/muli"
+            android:textSize="13sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Packed"
+            android:onClick="onRadioStatusClicked"/>
+    </RadioGroup>
+    </LinearLayout>
+
+    <View
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bt_very_light_gray"/>
+
+    <LinearLayout
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:fontFamily="@font/muli_extrabold"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Select Returning Reason :-"
+            android:textSize="15sp" />
+
+    <RadioGroup
+        android:background="@drawable/edit_text_border"
+        android:padding="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton android:id="@+id/one"
+            android:fontFamily="@font/muli"
+            android:textSize="13sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dead On Arrival"
+            android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/two"
+            android:fontFamily="@font/muli"
+            android:textSize="13sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Received Wrong Item"
+            android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/three"
+            android:fontFamily="@font/muli"
+            android:textSize="13sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Order Error"
+            android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/four"
+            android:fontFamily="@font/muli"
+            android:textSize="13sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Faulty, please supply details"
+            android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/five"
+            android:fontFamily="@font/muli"
+            android:textSize="13sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other, please supply details"
+            android:onClick="onRadioButtonClicked"/>
+
+    </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:fontFamily="@font/muli_extrabold"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:textColor="@color/black"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Write To Us :-"
+            android:textSize="15sp" />
+        <EditText
+            android:id="@+id/edt_message"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fontFamily="@font/muli_semibold"
+            android:textColor="@color/gray"
+            android:gravity="start"
+            android:textSize="15sp"
+            android:maxLength="300"
+            android:padding="10dp"
+            android:hint="write your query..."
+            android:layout_weight="1"
+            android:background="@drawable/edit_text_border"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_return"
+        android:layout_margin="10dp"
+        android:text="Submit"
+        android:onClick="makeReturnReq"
+        android:background="@drawable/round_button"
+        android:textColor="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

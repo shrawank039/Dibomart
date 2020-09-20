@@ -107,4 +107,9 @@ public class ContactUsActivity extends AppCompatActivity {
         stringRequest.setShouldCache(false);
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
+
+    public void homeGo(View view) {
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        finish();
+    }
 }

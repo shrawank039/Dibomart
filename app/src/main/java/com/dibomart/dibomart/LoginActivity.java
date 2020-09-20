@@ -170,7 +170,9 @@ public class LoginActivity extends AppCompatActivity {
                                 prf.setString(TAG_EMAIL, data.optString(TAG_EMAIL));
                                 prf.setString(TAG_MOBILE, data.optString("telephone"));
 
-                               finish();
+                            startActivity(new Intent(getApplicationContext(), MainActivity.class)
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                            finish();
 
                             Toast.makeText(LoginActivity.this,"Sign in done Succsessfully",Toast.LENGTH_LONG).show();
 

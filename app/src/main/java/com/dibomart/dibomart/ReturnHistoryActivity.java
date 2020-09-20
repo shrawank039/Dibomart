@@ -1,7 +1,6 @@
 package com.dibomart.dibomart;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,13 +19,12 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.dibomart.dibomart.adapter.CartListAdapter;
 import com.dibomart.dibomart.adapter.OrderHistoryAdapter;
-import com.dibomart.dibomart.model.CartList;
+import com.dibomart.dibomart.adapter.ReturnHistoryAdapter;
 import com.dibomart.dibomart.model.OrderList;
+import com.dibomart.dibomart.model.ReturnHistoryList;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
-import com.dibomart.dibomart.ui.PageViewModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,26 +35,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MyOrdersActivity extends AppCompatActivity {
+public class ReturnHistoryActivity extends AppCompatActivity {
 
     private static PrefManager prf;
-    private List<OrderList> productLists = new ArrayList<>();
+    private List<ReturnHistoryList> productLists = new ArrayList<>();
     private RecyclerView recyclerView;
-    private OrderHistoryAdapter mAdapter;
+    private ReturnHistoryAdapter mAdapter;
     private ProgressDialog pDialog;
     private LinearLayout llemptycart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_orders);
+        setContentView(R.layout.activity_return_history);
 
         prf = new PrefManager(this);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         llemptycart = findViewById(R.id.ll_emptycart);
         productLists = new ArrayList();
-        mAdapter = new OrderHistoryAdapter(getApplicationContext(), productLists);
+        mAdapter = new ReturnHistoryAdapter(getApplicationContext(), productLists);
 
         recyclerView.setHasFixedSize(true);
 
@@ -76,7 +74,7 @@ public class MyOrdersActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.ORDER_HISTORY,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.RETURN,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -91,10 +89,10 @@ public class MyOrdersActivity extends AppCompatActivity {
                                     JSONObject c = null;
                                     try {
                                         c = jsonArray.getJSONObject(i);
-                                        OrderList productList = new OrderList();
-                                        productList.setId(c.optString("order_id"));
-                                        productList.setItem(c.optString("products"));
-                                        productList.setPrice(c.optString("total"));
+                                        ReturnHistoryList productList = new ReturnHistoryList();
+                                        productList.setOrder_id(c.optString("order_id"));
+                                        productList.setReturn_id(c.optString("return_id"));
+                                        productList.setName(c.optString("name"));
                                         productList.setDate(c.optString("date_added"));
                                         productList.setStatus(c.optString("status"));
 
@@ -145,7 +143,6 @@ public class MyOrdersActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
     }
-
     public void homeGo(View view) {
         startActivity(new Intent(getApplicationContext(), MainActivity.class));
         finish();

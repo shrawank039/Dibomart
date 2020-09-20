@@ -55,6 +55,15 @@
                 android:layout_height="wrap_content"
                 android:text="Fill Form"/>
 
+            <TextView
+                android:fontFamily="@font/muli_semibold"
+                android:layout_width="wrap_content"
+                android:textColor="@color/black"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:text="Your Name :-"
+                android:textSize="15sp" />
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,6 +78,15 @@
             android:hint="Enter name"/>
     </androidx.cardview.widget.CardView>
 
+
+            <TextView
+                android:fontFamily="@font/muli_semibold"
+                android:layout_width="wrap_content"
+                android:textColor="@color/black"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:text="Your Email Address :-"
+                android:textSize="15sp" />
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -84,6 +102,14 @@
                     android:hint="Enter email"/>
             </androidx.cardview.widget.CardView>
 
+            <TextView
+                android:fontFamily="@font/muli_semibold"
+                android:layout_width="wrap_content"
+                android:textColor="@color/black"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:text="Your Query :-"
+                android:textSize="15sp" />
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

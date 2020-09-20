@@ -102,13 +102,13 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
                 .placeholder(R.drawable.placeholder)
                 .into(holder.productImg);
 
-        holder.productImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                view.getContext().startActivity(new Intent(view.getContext(), ProductDetailsActivity.class)
-                .putExtra("product_id", ongoing));
-            }
-        });
+//        holder.productImg.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                view.getContext().startActivity(new Intent(view.getContext(), ProductDetailsActivity.class)
+//                .putExtra("product_id", ongoing.getProduct_id()));
+//            }
+//        });
 
         holder.favImg.setOnClickListener(new View.OnClickListener() {
             @Override

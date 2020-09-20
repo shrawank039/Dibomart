@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:layout_height="match_parent"
-    tools:context=".MyOrdersActivity">
+    tools:context=".ReturnHistoryActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:text="My Orders"
+                android:text="Return History"
                 android:fontFamily="@font/muli_extrabold"
                 android:textSize="16sp" />
         </LinearLayout>
@@ -54,7 +54,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No orders found!"
+            android:text="No Returns found!"
             android:textColor="@color/gray"
             android:layout_marginBottom="10dp"
             android:gravity="center"
@@ -67,7 +67,7 @@
             android:fontFamily="@font/muli"
             android:layout_marginBottom="50dp"
             android:layout_height="wrap_content"
-            android:text="You have not ordered anything yet. \nLet's go buy something!"/>
+            android:text="You have not returned anything yet. \nThanks for shopping with us!"/>
 
         <Button
             android:onClick="homeGo"
