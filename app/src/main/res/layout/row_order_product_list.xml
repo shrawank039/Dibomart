@@ -126,6 +126,7 @@
         </LinearLayout>
 
         <Button
+            android:visibility="gone"
             android:id="@+id/btn_return"
             android:layout_gravity="end"
             android:layout_margin="5dp"

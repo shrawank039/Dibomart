@@ -96,6 +96,9 @@ public class OrderListAdapter extends RecyclerView.Adapter<OrderListAdapter.MyVi
         holder.price.setText(ongoing.getPrice());
         pDialog = new ProgressDialog(ctx);
 
+        if (ongoing.getStatus().equalsIgnoreCase("Delivered"))
+            holder.returnReq.setVisibility(View.VISIBLE);
+
         holder.returnReq.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

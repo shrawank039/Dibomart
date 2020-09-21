@@ -47,7 +47,8 @@ public class ServiceNames {
     public static final String CONFIRM = API + "confirm";
     public static final String PAY = API + "pay";
     public static final String GET_MAIL = "https://dibomart.in/get_email.php?telephone=8100101025";
-    public static final String ORDER_HISTORY = API + "customerorders";
+    public static final String ORDER_HISTORY = API + "customerorders/";
+    public static final String CANCEL_ORDER = API + "orderhistory/";
     public static final String RETURN = API + "returns";
     public static final String CONTACT_US = API + "contact";
     public static final String TERMS_CONDITIONS = "http://www.dibomart.in/terms.html";

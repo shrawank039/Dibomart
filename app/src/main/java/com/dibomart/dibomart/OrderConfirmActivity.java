@@ -98,6 +98,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         });
 
         getProductList();
+        loadMethod();
 
     }
 
@@ -181,7 +182,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        loadMethod();
                     }
                 }, new Response.ErrorListener() {
             @Override

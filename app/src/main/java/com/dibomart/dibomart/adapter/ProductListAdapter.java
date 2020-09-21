@@ -105,11 +105,12 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
         final int[] price = {0};
         final int[] specialPrice = {0};
 
+        spinnerArray = new ArrayList<>();
         for (int i = 0; i < ongoing.getProductOptions().size(); i++) {
             spinnerArray.add(" Quantity - "+ongoing.getProductOptions().get(i).getName());
         }
 
-        ArrayAdapter aa = new ArrayAdapter(ctx,R.layout.spinner_quantity,spinnerArray);
+        ArrayAdapter aa = new ArrayAdapter(ctx, R.layout.spinner_quantity,spinnerArray);
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //Setting the ArrayAdapter data on the Spinner
         holder.quantity.setAdapter(aa);

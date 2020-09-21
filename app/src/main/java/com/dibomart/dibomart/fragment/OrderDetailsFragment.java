@@ -1,6 +1,9 @@
 package com.dibomart.dibomart.fragment;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,10 +22,14 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.dibomart.dibomart.AddressActivity;
 import com.dibomart.dibomart.Global;
+import com.dibomart.dibomart.MyOrdersActivity;
 import com.dibomart.dibomart.PrefManager;
 import com.dibomart.dibomart.R;
+import com.dibomart.dibomart.ShippingMethod;
 import com.dibomart.dibomart.adapter.ProductListAdapter;
 import com.dibomart.dibomart.model.ProductList;
 import com.dibomart.dibomart.model.ProductOption;
@@ -36,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,12 +68,16 @@ public class OrderDetailsFragment extends Fragment {
     private TextView shipping;
     private TextView payment;
     private TextView date;
-    private TextView status;
     private TextView subTotal;
     private TextView shippingCharges;
     private TextView discount;
     private TextView total;
+    private TextView historyStatus;
+    private TextView historyDate;
     private String order_id;
+    private Button btnCancel;
+    String hisDate="", hisStatus="";
+    boolean status = false;
 
     public OrderDetailsFragment() {
         // Required empty public constructor
@@ -110,16 +123,95 @@ public class OrderDetailsFragment extends Fragment {
         shipping = root.findViewById(R.id.shipping_method);
         payment = root.findViewById(R.id.pay_method);
         date = root.findViewById(R.id.date);
-        status = root.findViewById(R.id.order_status);
         subTotal = root.findViewById(R.id.txt_subtotal);
         shippingCharges = root.findViewById(R.id.txt_delivery);
         discount = root.findViewById(R.id.txt_discount);
         total = root.findViewById(R.id.txt_total);
+        historyDate = root.findViewById(R.id.his_date);
+        historyStatus = root.findViewById(R.id.his_status);
+
+        btnCancel = root.findViewById(R.id.btn_cancel);
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Are you sure to cancel this order?")
+                        .setCancelable(true)
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                cancelOrder();
+                            }
+                        });
+                final AlertDialog alert = builder.create();
+                alert.setOnShowListener( new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface arg0) {
+                        alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary));
+                    }
+                });
+                alert.show();
+            }
+        });
 
         id.setText("#"+order_id);
 
         getProductDetails();
         return root;
+    }
+
+    private void cancelOrder() {
+        pDialog = new ProgressDialog(getContext());
+        pDialog.setMessage("Loading Please wait...");
+        pDialog.setIndeterminate(false);
+        pDialog.setCancelable(false);
+        pDialog.show();
+
+        JSONObject data= new JSONObject();
+        try {
+            data.put("order_status_id", "7");
+            data.put( "notify", "1");
+            data.put("comment", "");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.PUT, ServiceNames.CANCEL_ORDER+order_id, data,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        pDialog.dismiss();
+                        Log.d("TAG", "response : " + response);
+
+                            if (response.optInt("success") == 1) {
+                                Toast.makeText(getContext(), "Order Cancelled Successfully", Toast.LENGTH_SHORT).show();
+                                getActivity().finish();
+                                startActivity(new Intent(getContext(), MyOrdersActivity.class));
+
+                    }}
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pDialog.dismiss();
+                Toast.makeText(getContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                headers.put("X-Oc-Session", prf.getString("session"));
+                return headers;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setShouldCache(false);
+        MySingleton.getInstance(getContext()).addToRequestQueue(stringRequest);
     }
 
     private void getProductDetails() {
@@ -147,9 +239,23 @@ public class OrderDetailsFragment extends Fragment {
                                     shipping.setText(jsonObject1.optString("shipping_method"));
 
                                     JSONArray history = jsonObject1.getJSONArray("histories");
+                                    for (int x =0; x<history.length(); x++) {
+                                        JSONObject hisObj = history.getJSONObject(x);
+                                        hisStatus = hisStatus +"\n"+ hisObj.optString("status");
+                                        hisDate = hisDate +"\n"+ hisObj.optString("date_added");
+
+                                        if (hisObj.optString("status").equalsIgnoreCase("Delivered") || hisObj.optString("status").equalsIgnoreCase("Canceled"))
+                                            status=true;
+                                    }
+
+                                    historyDate.setText(hisDate);
+                                    historyStatus.setText(hisStatus);
+
+                                    if (!status)
+                                        btnCancel.setVisibility(View.VISIBLE);
+
                                     JSONObject hisObj = history.getJSONObject(0);
-                                    date.setText(hisObj.optString("date_added"));
-                                    status.setText(hisObj.optString("status"));
+                                    date.setText(jsonObject1.optString("date_added"));
 
                                     JSONArray jsonarray = jsonObject1.getJSONArray("totals");
 

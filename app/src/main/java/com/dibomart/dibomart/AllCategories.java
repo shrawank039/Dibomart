@@ -1,6 +1,9 @@
 package com.dibomart.dibomart;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -21,6 +25,7 @@ import com.dibomart.dibomart.adapter.CategoryAdapter;
 import com.dibomart.dibomart.model.Category;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
+import com.dibomart.dibomart.ui.PageViewModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +41,9 @@ public class AllCategories extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CategoryAdapter mAdapter;
     private static PrefManager prf;
+    private PageViewModel pageViewModel;
     private List<Category> subCategoryLists = new ArrayList<>();
+    TextView txtCartItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +51,26 @@ public class AllCategories extends AppCompatActivity {
         setContentView(R.layout.activity_all_categories);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        txtCartItem = findViewById(R.id.cart_item);
+
         mAdapter = new CategoryAdapter(getApplicationContext(), subCategoryLists);
+        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
 
         prf = new PrefManager(this);
 
         recyclerView.setHasFixedSize(true);
+
+        pageViewModel.getItemText().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer s) {
+                if (s == 0) {
+                    txtCartItem.setVisibility(View.GONE);
+                }else {
+                    txtCartItem.setVisibility(View.VISIBLE);
+                }
+                txtCartItem.setText(String.valueOf(s));
+            }
+        });
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
        // recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));

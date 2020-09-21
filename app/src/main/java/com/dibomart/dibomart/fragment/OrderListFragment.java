@@ -60,6 +60,7 @@ public class OrderListFragment extends Fragment {
     private String order_id;
     private ProgressDialog pDialog;
     private static PrefManager prf;
+    String status;
     private RecyclerView recyclerView;
     private OrderListAdapter mAdapter;
     private List<OrderedProductList> productLists = new ArrayList<>();
@@ -140,6 +141,12 @@ public class OrderListFragment extends Fragment {
                                 JSONObject jsonObject1 = jsonObject.getJSONObject("data");
                                 try {
                                     JSONArray jsonarray = jsonObject1.getJSONArray("products");
+                                    JSONArray history = jsonObject1.getJSONArray("histories");
+                                    for (int x =0; x<history.length(); x++) {
+                                        JSONObject hisObj = history.getJSONObject(x);
+                                        status = hisObj.optString("status");
+                                    }
+
                                     for (int i = 0; i < jsonarray.length(); i++) {
                                         JSONObject c = null;
                                         try {
@@ -156,6 +163,7 @@ public class OrderListFragment extends Fragment {
                                             productList.setTelephone(jsonObject1.optString("telephone"));
                                             productList.setPrduct(c.optString("name"));
                                             productList.setDate(jsonObject1.optString("date_added"));
+                                            productList.setStatus(status);
                                             productList.setOrder_id(jsonObject1.optString("order_id"));
 
                                             JSONArray optionArray = c.getJSONArray("option");

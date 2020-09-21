@@ -57,22 +57,20 @@ public class SearchActivity extends AppCompatActivity implements
         prf = new PrefManager(this);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
 
         productLists = new ArrayList();
         mAdapter = new ProductListAdapter(getApplicationContext(), productLists);
-
-        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(mAdapter);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mAdapter);
 
         inputSearch.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                // When user changed the Text
                 getProductList(String.valueOf(cs));
             }
 
@@ -91,27 +89,25 @@ public class SearchActivity extends AppCompatActivity implements
     }
 
     private void getProductList(String getData) {
-
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.SEARCH_PRODUCT_LIST+getData,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        productLists.clear();
-                        mAdapter.notifyDataSetChanged();
                         Log.d("TAG", "response : " + response);
                         JSONObject jsonObject = null;
                         try {
                             jsonObject = new JSONObject(response);
                             if (jsonObject.optInt("success") == 1) {
+                                productLists.clear();
                                 JSONArray jsonarray = null;
                                 try {
                                     jsonarray = jsonObject.getJSONArray("data");
 
                                     for (int i = 0; i < jsonarray.length(); i++) {
                                         JSONObject c = null;
+                                        productOptionList = new ArrayList<>();
                                         try {
                                             c = jsonarray.getJSONObject(i);
-                                            productOptionList = new ArrayList<>();
                                             ProductList productList = new ProductList();
                                             productList.setName(c.optString("name"));
                                             productList.setId(c.optString("id"));
@@ -141,12 +137,12 @@ public class SearchActivity extends AppCompatActivity implements
                                             }
                                             productList.setProductOptions(productOptionList);
                                             productLists.add(productList);
-                                            mAdapter.notifyDataSetChanged();
 
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
                                     }
+                                    mAdapter.notifyDataSetChanged();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
