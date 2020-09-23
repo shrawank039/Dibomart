@@ -1,9 +1,6 @@
 package com.dibomart.dibomart;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,20 +23,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.dibomart.dibomart.adapter.CartListAdapter;
 import com.dibomart.dibomart.adapter.PaymentMethodAdapter;
-import com.dibomart.dibomart.adapter.ShippingMethodAdapter;
-import com.dibomart.dibomart.model.CartList;
 import com.dibomart.dibomart.model.PaymentMethodList;
-import com.dibomart.dibomart.model.ShippingMethodList;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
-import com.dibomart.dibomart.ui.PageViewModel;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +55,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
         prf = new PrefManager(this);
         paymentMethodLists = new ArrayList<>();
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerView);
         txtCoupon = findViewById(R.id.txt_coupon);
         edtCoupon = findViewById(R.id.edt_coupon);
         llApply =  findViewById(R.id.ll_apply);
@@ -98,7 +88,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
         });
 
         getProductList();
-        loadMethod();
 
     }
 
@@ -179,6 +168,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                             }
+                            if (paymentMethodLists.size()==0)
+                            loadMethod();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -416,45 +407,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
         stringRequest.setShouldCache(false);
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
-
-//    private void cod() {
-//        pDialog = new ProgressDialog(this);
-//        pDialog.setMessage("Loading Please wait...");
-//        pDialog.setIndeterminate(false);
-//        pDialog.setCancelable(false);
-//        pDialog.show();
-//
-//        StringRequest stringRequest = new StringRequest(Request.Method.PUT, ServiceNames.CONFIRM,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        pDialog.dismiss();
-//                        startActivity(new Intent(getApplicationContext(),OrderSuccessActivity.class));
-//                        finish();
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                pDialog.dismiss();
-//                Toast.makeText(getApplicationContext(), "error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//        }) {
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                HashMap<String, String> headers = new HashMap<String, String>();
-//                headers.put("Content-Type", "application/json; charset=utf-8");
-//                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
-//                headers.put("X-Oc-Session", prf.getString("session"));
-//                return headers;
-//            }
-//        };
-//        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-//                15000,
-//                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-//                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//        stringRequest.setShouldCache(false);
-//        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
-//    }
 
     private void confirm() {
         pDialog = new ProgressDialog(this);

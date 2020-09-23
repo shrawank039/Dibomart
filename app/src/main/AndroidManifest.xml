@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:debuggable="true"
         android:allowBackup="true"
         android:icon="@drawable/logo_white"
         android:label="@string/app_name"
@@ -14,10 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:targetApi="m">
-        <activity android:name=".ReturnDetailsActivity"></activity>
+        tools:targetApi="m"
+        tools:ignore="HardcodedDebugMode">
+
+        <activity android:name=".ReturnDetailsActivity"/>
         <activity android:name=".ReturnHistoryActivity" />
-        <activity android:name=".ReturnDetailActivity" />
         <activity android:name=".OrderDetailActivity" />
         <activity android:name=".ReturnActivity" />
         <activity android:name=".EditProfileActivity" />

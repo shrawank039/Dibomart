@@ -69,7 +69,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
     private String firstname;
     private String lastname;
     private String email;
-    private String countrycode;
+    private String code;
     private String mobile;
     private String password;
 
@@ -103,33 +103,8 @@ public class MobileVerifyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_mobile_verify);
 
         prf = new PrefManager(this);
-        try {
-            ispass = Objects.requireNonNull(getIntent().getStringExtra("password")).contains("password");
-            if(!ispass) {
-                firstname = getIntent().getStringExtra(TAG_FIRSTNAME);
-                lastname = getIntent().getStringExtra(TAG_LASTNAME);
-                email = getIntent().getStringExtra(TAG_EMAIL);
-                mobile = getIntent().getStringExtra(TAG_MOBILE);
-                password = getIntent().getStringExtra(TAG_PASSWORD);
-            } else {
-
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         ccp = (CountryCodePicker) findViewById(R.id.ccp);
         phoneed = (TextInputEditText) this.findViewById(R.id.numbered);
-   //     ccp.registerPhoneNumberTextView(phoneed);
-
-//        ccp.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
-//            @Override
-//            public void onCountrySelected(Country selectedCountry) {
-//                countrycode = selectedCountry.getPhoneCode();
-//                Toast.makeText(MobileVerifyActivity.this, "Updated " + selectedCountry.getPhoneCode(), Toast.LENGTH_SHORT).show();
-//            }
-//        });
 
         codeed = (TextInputEditText) this.findViewById(R.id.verificationed);
         fabbutton = (FloatingActionButton) findViewById(R.id.sendverifybt);
@@ -139,6 +114,21 @@ public class MobileVerifyActivity extends AppCompatActivity {
         newPass = (TextInputEditText) findViewById(R.id.newpass);
         retypeNewPass = (TextInputEditText) findViewById(R.id.retypeNewPass);
         resetPassButton = (Button) findViewById(R.id.changePassBtn);
+
+        try {
+            ispass = Objects.requireNonNull(getIntent().getStringExtra("password")).contains("password");
+            if(!ispass) {
+                firstname = getIntent().getStringExtra(TAG_FIRSTNAME);
+                lastname = getIntent().getStringExtra(TAG_LASTNAME);
+                email = getIntent().getStringExtra(TAG_EMAIL);
+                mobile = getIntent().getStringExtra(TAG_MOBILE);
+                password = getIntent().getStringExtra(TAG_PASSWORD);
+            } else {
+                fabbutton.setTag("reset");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
@@ -201,8 +191,9 @@ public class MobileVerifyActivity extends AppCompatActivity {
         fabbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(MobileVerifyActivity.this, fabbutton.getTag().toString(), Toast.LENGTH_SHORT).show();
                 if (fabbutton.getTag().equals("send")) {
-                    if (!phoneed.getText().toString().trim().isEmpty() && phoneed.getText().toString().trim().length() >= 5) {
+                    if (!phoneed.getText().toString().trim().isEmpty() && phoneed.getText().toString().trim().length() >= 10) {
                       //  Toast.makeText(MobileVerifyActivity.this, ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim(), Toast.LENGTH_SHORT).show();
                         startPhoneNumberVerification(ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim());
                         mVerified = false;
@@ -210,6 +201,15 @@ public class MobileVerifyActivity extends AppCompatActivity {
                         codeed.setVisibility(View.VISIBLE);
                         fabbutton.setImageResource(R.drawable.ic_arrow_forward_white_24dp);
                         fabbutton.setTag("verify");
+                    }
+                    else {
+                        phoneed.setError("Please enter valid mobile number");
+                    }
+                }
+
+                if (fabbutton.getTag().equals("reset")) {
+                    if (!phoneed.getText().toString().trim().isEmpty() && phoneed.getText().toString().trim().length() >= 10) {
+                        checkNumberAvailability();
                     }
                     else {
                         phoneed.setError("Please enter valid mobile number");
@@ -233,6 +233,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
                         } else {
                             ((LinearLayout) findViewById(R.id.entermobile)).setVisibility(View.GONE);
                             ((LinearLayout) findViewById(R.id.resetpass)).setVisibility(View.VISIBLE);
+                            forgotPost();
                         }
                     }
 
@@ -247,8 +248,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(newPass.getText().length()>1 && retypeNewPass.getText().length()>1) {
                     if (newPass.getText().toString().equals(retypeNewPass.getText().toString())) {
-                        String code ="";
-                        changePassword(newPass,code);
+                        checkNumberAvailability();
                     } else {
                         Toast.makeText(MobileVerifyActivity.this, "NewPassword And RetypePass is not Same", Toast.LENGTH_SHORT).show();
                     }
@@ -278,7 +278,107 @@ public class MobileVerifyActivity extends AppCompatActivity {
         });
     }
 
-    private void changePassword(TextInputEditText newPass, String code) {
+    private void forgotPost() {
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Loading Please wait...");
+        pDialog.setIndeterminate(false);
+        pDialog.setCancelable(false);
+        pDialog.show();
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("email",email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.FORGOT_POST,data,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        pDialog.dismiss();
+                        Log.d("TAG", "response : " + jsonObject);
+//                        if (jsonObject.optString("success").equalsIgnoreCase("1"))
+//                            Toast.makeText(MobileVerifyActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pDialog.dismiss();
+                Toast.makeText(getApplicationContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                headers.put("X-Oc-Session", prf.getString("session"));
+                return headers;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setShouldCache(false);
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+    }
+
+    private void checkNumberAvailability() {
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Loading Please wait...");
+        pDialog.setIndeterminate(false);
+        pDialog.setCancelable(false);
+        pDialog.show();
+
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, ServiceNames.FORGOT_GET+phoneed.getText().toString().trim(),null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        pDialog.dismiss();
+                        Log.d("TAG", "response : " + jsonObject);
+                        email = jsonObject.optString("email");
+                        code = jsonObject.optString("code");
+
+                        if (fabbutton.getTag().equals("reset")) {
+                            startPhoneNumberVerification(ccp.getSelectedCountryCodeWithPlus() + phoneed.getText().toString().trim());
+                            mVerified = false;
+                            starttimer();
+                            codeed.setVisibility(View.VISIBLE);
+                            fabbutton.setImageResource(R.drawable.ic_arrow_forward_white_24dp);
+                            fabbutton.setTag("verify");
+
+                        } else {
+                            changePassword(newPass.getText().toString(),code);
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pDialog.dismiss();
+                Toast.makeText(getApplicationContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                headers.put("X-Oc-Session", prf.getString("session"));
+                return headers;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setShouldCache(false);
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+    }
+
+    private void changePassword(String newPass, String code) {
         String form_action ="<form id=\"reset\" action=\"https://www.dibomart.in/index.php?route=account/reset&amp;code="+code+"\" method=\"post\" enctype=\"multipart/form-data\" class=\"form-horizontal\">\n" +
                 "        <fieldset>\n" +
                 "          <legend>Enter the new password you wish to use.</legend>\n" +

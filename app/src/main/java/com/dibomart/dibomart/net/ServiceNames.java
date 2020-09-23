@@ -55,4 +55,9 @@ public class ServiceNames {
     public static final String PRIVACY_POLICY = "http://www.dibomart.in/privacy.html";
     public static final String RETURN_POLICY = "http://www.dibomart.in/return_policy.html";
 
+    //forgot pass
+    public static final String FORGOT_GET  = "https://dibomart.in/get_email.php?telephone=";
+    public static final String FORGOT_POST = API + "forgotten";
+
+
 }

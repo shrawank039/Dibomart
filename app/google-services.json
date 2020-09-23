@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "632440589924-irh7lfa51lts5661rq4cnojrh0332fje.apps.googleusercontent.com",
+          "client_id": "632440589924-eqj643itk8krm9eojs2becprlss1gg2f.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dibomart.dibomart",
             "certificate_hash": "4134c32671b597ba0c4b6ee68298f4ffb9a262f1"
+          }
+        },
+        {
+          "client_id": "632440589924-rgrtkomoc41ufjfu192purjo3u0rhjcb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dibomart.dibomart",
+            "certificate_hash": "edddc4c886e72bd0e0f3995e74d5905c4db67ab0"
           }
         },
         {
