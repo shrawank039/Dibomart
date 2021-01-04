@@ -33,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,7 +107,7 @@ public class CartActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.CART,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Global.base_url+ServiceNames.CART,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -168,7 +169,15 @@ public class CartActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }) {
             @Override
@@ -198,7 +207,7 @@ public class CartActivity extends AppCompatActivity {
     }
 
     public void nextClick(View view) {
-        startActivity(new Intent(getApplicationContext(), ShippingMethod.class));
+        startActivity(new Intent(getApplicationContext(), AddressSelectionActivity.class));
     }
 
     public void homeGo(View view) {

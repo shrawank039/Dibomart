@@ -135,6 +135,6 @@ public class ProductListActivity extends AppCompatActivity implements
     }
 
     public void nextClick(View view) {
-        startActivity(new Intent(getApplicationContext(),ShippingMethod.class));
+        startActivity(new Intent(getApplicationContext(), AddressSelectionActivity.class));
     }
 }

@@ -2,6 +2,7 @@ package com.dibomart.dibomart;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -50,6 +51,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,9 +88,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), PincodeActivity.class));
             }
         });
+
         fragmentManager = getSupportFragmentManager();
         navigationView = findViewById(R.id.navigation_view);
-        View hView =  navigationView.getHeaderView(0);
+        View hView = navigationView.getHeaderView(0);
         header_name = hView.findViewById(R.id.header_name);
         drawerLayout = findViewById(R.id.drawer_layout);
         prf = new PrefManager(MainActivity.this);
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         HomeFragment homeFragment = new HomeFragment();
         loadFrag(homeFragment, prf.getString("pincode"), fragmentManager);
 
-        header_name.setText(prf.getString(TAG_FIRSTNAME)+" "+prf.getString(TAG_LASTNAME));
+        header_name.setText(prf.getString(TAG_FIRSTNAME) + " " + prf.getString(TAG_LASTNAME));
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
@@ -249,9 +252,9 @@ public class MainActivity extends AppCompatActivity {
         if (!menuModel.hasChildren) {
             childList.put(menuModel, null);
         }
-        if (prf.getString("customer_id").equals("")){
+        if (prf.getString("customer_id").equals("")) {
             menuModel = new MenuModel("Login", true, false, null); //Menu of Android Tutorial. No sub menus
-        }else {
+        } else {
             menuModel = new MenuModel("Logout", true, false, null); //Menu of Android Tutorial. No sub menus
         }
         headerList.add(menuModel);
@@ -277,8 +280,24 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                 finish();
                                 break;
+                            case 4:
+                                Intent intent = new Intent(Intent.ACTION_DIAL);
+                                intent.setData(Uri.parse("tel:"+prf.getString("call_us")));
+                                startActivity(intent);
+                                break;
+                            case 5:
+                                Intent sendIntent = new Intent();
+                                sendIntent.setAction(Intent.ACTION_SEND);
+                                sendIntent.putExtra(Intent.EXTRA_TEXT,
+                                        "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID);
+                                sendIntent.setType("text/plain");
+                                startActivity(sendIntent);
+                                break;
                             case 1:
-                                startActivity(new Intent(getApplicationContext(), AddressActivity.class));
+                                if (prf.getString("session").equals(""))
+                                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                                else
+                                    startActivity(new Intent(getApplicationContext(), AddressActivity.class));
                                 break;
                             case 6:
                                 startActivity(new Intent(getApplicationContext(), ContactUsActivity.class));
@@ -299,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (prf.getString("customer_id").equals(""))
                                     startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                                 else
-                                logOut();
+                                    logOut();
                                 break;
                             default:
                                 break;
@@ -324,14 +343,28 @@ public class MainActivity extends AppCompatActivity {
                         in.putExtra("index", childPosition);
                         startActivity(in);
                         onBackPressed();
-                    } else if (childPosition == 2 && groupPosition == 3){
-                        startActivity(new Intent(getApplicationContext(), EditProfileActivity.class));
-                    }
-                    else if (childPosition == 0 && groupPosition == 3){
-                        startActivity(new Intent(getApplicationContext(), MyOrdersActivity.class));
-                    }
-                    else if (childPosition == 1 && groupPosition == 3){
-                        startActivity(new Intent(getApplicationContext(), ReturnHistoryActivity.class));
+                    } else if (childPosition == 2 && groupPosition == 3) {
+                        if (prf.getString("session").equals(""))
+                            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                        else
+                            startActivity(new Intent(getApplicationContext(), EditProfileActivity.class));
+                    } else if (childPosition == 3 && groupPosition == 3) {
+                        final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                        } catch (android.content.ActivityNotFoundException anfe) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                        }
+                    } else if (childPosition == 0 && groupPosition == 3) {
+                        if (prf.getString("session").equals(""))
+                            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                        else
+                            startActivity(new Intent(getApplicationContext(), MyOrdersActivity.class));
+                    } else if (childPosition == 1 && groupPosition == 3) {
+                        if (prf.getString("session").equals(""))
+                            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                        else
+                            startActivity(new Intent(getApplicationContext(), ReturnHistoryActivity.class));
                     }
                 }
 
@@ -341,45 +374,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logOut() {
-            JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                    Request.Method.POST, ServiceNames.LOGOUT, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.POST, Global.base_url+ServiceNames.LOGOUT, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
 
-                            if (response.optInt("success") == 1) {
-                                prf.setString("session", "");
-                                prf.setString("customer_id","");
-                                prf.setInt("cart_item", 0);
-                                PageViewModel.setitemIndex(0);
-                                Global.cartTotalItem = 0;
-                                Toast.makeText(MainActivity.this, "Logout Successfully", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(getApplicationContext(), LoginActivity.class)
-                                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
-                                finish();
-                            }
+                        if (response.optInt("success") == 1) {
+                            prf.setString("session", "");
+                            prf.setString("customer_id", "");
+                            prf.setInt("cart_item", 0);
+                            PageViewModel.setitemIndex(0);
+                            Global.cartTotalItem = 0;
+                            Toast.makeText(MainActivity.this, "Logout Successfully", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getApplicationContext(), LoginActivity.class)
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                            finish();
                         }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
                 }
-            }){
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Content-Type", "application/json; charset=utf-8");
-                    headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
-                    headers.put("X-Oc-Session", prf.getString("session"));
-                    return headers;
-                }
-            };
-            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
-                    15000,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            jsonObjReq.setShouldCache(false);
-            MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                headers.put("X-Oc-Session", prf.getString("session"));
+                return headers;
+            }
+        };
+        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjReq.setShouldCache(false);
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 
 

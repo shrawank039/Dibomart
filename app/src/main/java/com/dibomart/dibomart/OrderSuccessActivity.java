@@ -1,6 +1,7 @@
 package com.dibomart.dibomart;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
@@ -26,10 +27,13 @@ import com.dibomart.dibomart.model.PaymentMethodList;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.dibomart.dibomart.ui.PageViewModel;
+import com.dibomart.dibomart.ui.PageViewModel2;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +45,7 @@ public class OrderSuccessActivity extends AppCompatActivity {
     private List<PaymentMethodList> paymentMethodLists;
     private RecyclerView recyclerView;
     private PaymentMethodAdapter mAdapter;
+    private PageViewModel2 pageViewModel;
     TextView txtStatus, txtID;
     ImageView imgTick;
     String status ="0";
@@ -59,6 +64,8 @@ public class OrderSuccessActivity extends AppCompatActivity {
         llHistory = findViewById(R.id.ll_history);
         llContinue = findViewById(R.id.ll_continue);
 
+        pageViewModel = ViewModelProviders.of(this).get(PageViewModel2.class);
+
         llContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,12 +76,15 @@ public class OrderSuccessActivity extends AppCompatActivity {
         llHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(),MainActivity.class)
+                startActivity(new Intent(getApplicationContext(),MyOrdersActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
             }
         });
         if (status.equals("1")) {
             confirm();
+            PageViewModel.setIndex(0);
+            PageViewModel.setitemIndex(0);
+            pageViewModel.setIndex(0);
         } else {
             imgTick.setBackgroundResource(R.drawable.error);
             txtStatus.setText("Order Failed!");
@@ -91,15 +101,14 @@ public class OrderSuccessActivity extends AppCompatActivity {
         pDialog.show();
 
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.PUT, ServiceNames.CONFIRM, null,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.PUT, Global.base_url+ServiceNames.CONFIRM, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         pDialog.dismiss();
                         prf.setInt("cart_item",0);
                         prf.setInt("cart_price",0);
-                        PageViewModel.setitemIndex(0);
-                        PageViewModel.setIndex(0);
+
                         Log.d("TAG", "response : " + jsonObject);
 
                         if (jsonObject.optInt("success") == 1) {
@@ -107,6 +116,10 @@ public class OrderSuccessActivity extends AppCompatActivity {
                             JSONObject jsonObject1 = jsonObject.getJSONObject("data");
                             String a= jsonObject1.optString("order_id");
                             txtID.setText("ID - #"+a);
+                            PageViewModel.setitemIndex(0);
+                            PageViewModel.setIndex(0);
+                            Global.cartTotalItem = 0;
+                            Global.cartTotalPrice = 0;
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -116,8 +129,15 @@ public class OrderSuccessActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }            }
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {

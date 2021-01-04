@@ -30,6 +30,8 @@ import com.dibomart.dibomart.net.ServiceNames;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +101,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.CART,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Global.base_url+ServiceNames.CART,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -178,7 +180,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }) {
             @Override
@@ -200,7 +210,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
     private void loadMethod() {
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, ServiceNames.PAYMENT_METHOD, null,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, Global.base_url+ServiceNames.PAYMENT_METHOD, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -238,8 +248,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "04error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }            }
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -272,7 +289,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.COUPON, data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.COUPON, data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -299,8 +316,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                     pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "Warning: Coupon is either invalid, expired or reached its usage limit!", Toast.LENGTH_LONG).show();
-            }
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }            }
         }){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -327,7 +351,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.DELETE, ServiceNames.COUPON, null,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.DELETE, Global.base_url+ServiceNames.COUPON, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -349,8 +373,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "05error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }            }
         }){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -376,7 +407,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.CONFIRM,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Global.base_url+ServiceNames.CONFIRM,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -388,8 +419,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "06error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }            }
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -416,7 +454,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         pDialog.show();
 
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.CONFIRM, null,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.CONFIRM, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -444,8 +482,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "08error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }            }
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {

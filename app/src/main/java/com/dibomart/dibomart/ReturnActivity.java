@@ -20,9 +20,11 @@ import com.dibomart.dibomart.model.OrderedProductList;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -138,7 +140,7 @@ public class ReturnActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.RETURN, data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.RETURN, data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -157,7 +159,15 @@ public class ReturnActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override

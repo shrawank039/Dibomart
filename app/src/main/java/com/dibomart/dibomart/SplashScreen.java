@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,12 @@ public class SplashScreen extends Activity {
         setContentView(R.layout.activity_splash_screen);
 
         prf = new PrefManager(SplashScreen.this);
+
+        if (prf.getString("base_url").equals(""))
+            Global.base_url = "https://dibomart.in/";
+        else
+            Global.base_url = prf.getString("base_url");
+
         Global.ongoingList = new ArrayList();
 
         if (!prf.getString("s_key").equals("")) {
@@ -102,7 +109,7 @@ public class SplashScreen extends Activity {
 
     private void getBannerImage() {
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.BANNER_IMG+"/7", null,
+                Request.Method.GET, Global.base_url+ServiceNames.BANNER_IMG+"/7", null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -117,6 +124,7 @@ public class SplashScreen extends Activity {
                                         c = jsonArray.getJSONObject(i);
                                         Log.d("TAG", "image : "+c.optString("image"));
                                         Global.banner.add(c.optString("image"));
+                                        Global.bannerUrl.add(c.optString("link"));
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -132,7 +140,15 @@ public class SplashScreen extends Activity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "12 " + error.toString(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override
@@ -152,7 +168,7 @@ public class SplashScreen extends Activity {
     }
     private void getCategory() {
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.ALL_CATEGORIES, null,
+                Request.Method.GET, Global.base_url+ServiceNames.ALL_CATEGORIES, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -207,7 +223,15 @@ public class SplashScreen extends Activity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "13 " + error.toString(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override

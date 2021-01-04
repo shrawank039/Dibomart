@@ -28,9 +28,11 @@ import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.dibomart.dibomart.ui.PageViewModel;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,7 +177,7 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
 
     private void deleteItem(String key) {
 
-        JsonObjectRequest stringReq = new JsonObjectRequest(Request.Method.DELETE, ServiceNames.CART+"/"+key, null,
+        JsonObjectRequest stringReq = new JsonObjectRequest(Request.Method.DELETE, Global.base_url+ServiceNames.CART+"/"+key, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -187,7 +189,15 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
             public void onErrorResponse(VolleyError error) {
                 //   pDialog.dismiss();
                 Log.d("TAG", error.toString());
-                Toast.makeText(ctx, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override
@@ -222,7 +232,7 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.PUT, ServiceNames.CART, data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.PUT, Global.base_url+ServiceNames.CART, data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -233,7 +243,15 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.MyView
             @Override
             public void onErrorResponse(VolleyError error) {
              //   pDialog.dismiss();
-                Toast.makeText(ctx, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override

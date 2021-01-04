@@ -25,6 +25,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.request.RequestOptions;
 import com.dibomart.dibomart.AllCategories;
 import com.dibomart.dibomart.Global;
+import com.dibomart.dibomart.MainActivity;
 import com.dibomart.dibomart.PrefManager;
 import com.dibomart.dibomart.ProductListActivity;
 import com.dibomart.dibomart.R;
@@ -45,6 +46,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +58,7 @@ import java.util.Map;
  * create an instance of this fragment.
  */
 
-public class HomeFragment extends Fragment implements BaseSliderView.OnSliderClickListener{
+public class HomeFragment extends Fragment implements BaseSliderView.OnSliderClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -113,15 +115,15 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-         homeSlider = view.findViewById(R.id.slider);
-         promoSlider = view.findViewById(R.id.promo_slider);
-         txtAllCat = view.findViewById(R.id.textCategoryViewAll);
-         txtAllCat.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View view) {
-                 startActivity(new Intent(getContext(), AllCategories.class));
-             }
-         });
+        homeSlider = view.findViewById(R.id.slider);
+        promoSlider = view.findViewById(R.id.promo_slider);
+        txtAllCat = view.findViewById(R.id.textCategoryViewAll);
+        txtAllCat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getContext(), AllCategories.class));
+            }
+        });
 
         prf = new PrefManager(getContext());
         getMerchant();
@@ -158,10 +160,10 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
                 //  Toast.makeText(context, ongoing.getId(), Toast.LENGTH_SHORT).show();
 
-                    Intent in = new Intent(getActivity(), ProductListActivity.class);
-                    in.putExtra("category_id", ongoing.getId());
-                    in.putExtra("index", position);
-                    startActivity(in);
+                Intent in = new Intent(getActivity(), ProductListActivity.class);
+                in.putExtra("category_id", ongoing.getId());
+                in.putExtra("index", position);
+                startActivity(in);
 
             }
 
@@ -183,7 +185,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
             public void onClick(View view, int position) {
                 Merchant merchant = merchantList.get(position);
 
-                if(!merchant.getUrl().equals("")) {
+                if (!merchant.getUrl().equals("")) {
                     Intent in = new Intent(getActivity(), WebViewActivity.class);
                     in.putExtra("link", merchant.getUrl());
                     startActivity(in);
@@ -198,11 +200,11 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
         }));
 
         LinearLayout llbanner = view.findViewById(R.id.ll_banner);
-        LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,prf.getInt("banner_height"));
+        LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, prf.getInt("banner_height"));
         llbanner.setLayoutParams(parms);
 
         LinearLayout llpromo_banner = view.findViewById(R.id.ll_banner_promo);
-        LinearLayout.LayoutParams pparms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,prf.getInt("pbanner_height"));
+        LinearLayout.LayoutParams pparms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, prf.getInt("pbanner_height"));
         llpromo_banner.setLayoutParams(pparms);
 
         return view;
@@ -210,30 +212,30 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
     private void getBannerImage() {
 
-                                RequestOptions requestOptions = new RequestOptions();
-                                requestOptions.centerCrop();
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.centerCrop();
 
-                                for (int i = 0; i < Global.banner.size(); i++) {
-                                        //  Log.d("TAG", "image : "+c.optString("image_url"));
-                                        TextSliderView sliderView = new TextSliderView(getContext());
-                                        sliderView
-                                                .image(Global.banner.get(i))
-                                                //    .description(listName.get(i))
-                                                .setRequestOption(requestOptions)
-                                                .setProgressBarVisible(true);
+        for (int i = 0; i < Global.banner.size(); i++) {
+            //  Log.d("TAG", "image : "+c.optString("image_url"));
+            TextSliderView sliderView = new TextSliderView(getContext());
+            sliderView
+                    .image(Global.banner.get(i))
+                    //    .description(listName.get(i))
+                    .setRequestOption(requestOptions)
+                    .setProgressBarVisible(true);
 
-                                        //add your extra information
-                                        sliderView.bundle(new Bundle());
-                                        //  sliderView.getBundle().putString("extra", listName.get(i));
-                                        homeSlider.addSlider(sliderView);
+            //add your extra information
+            sliderView.bundle(new Bundle());
+            //  sliderView.getBundle().putString("extra", listName.get(i));
+            homeSlider.addSlider(sliderView);
 
-                                }
+        }
 
     }
 
     private void getPromoBanner() {
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.BANNER_IMG+"/6", null,
+                Request.Method.GET, Global.base_url+ServiceNames.BANNER_IMG + "/6", null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -248,16 +250,23 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                                     JSONObject c = null;
                                     try {
                                         c = jsonArray.getJSONObject(i);
-                                        Log.d("TAG", "image : "+c.optString("image"));
+                                        Log.d("TAG", "image : " + c.optString("image"));
                                         TextSliderView sliderView = new TextSliderView(getContext());
                                         sliderView
                                                 .image(c.optString("image"))
                                                 .setRequestOption(requestOptions)
-                                                .setProgressBarVisible(true);
+                                                .setProgressBarVisible(true)
+                                                .setOnSliderClickListener(new BaseSliderView.OnSliderClickListener() {
+                                                    @Override
+                                                    public void onSliderClick(BaseSliderView slider) {
+                                                        startActivity(new Intent(getContext(), WebViewActivity.class)
+                                                                .putExtra("link", slider.getBundle().getString("extra")));
+                                                    }
+                                                });
 
                                         //add your extra information
                                         sliderView.bundle(new Bundle());
-                                        //  sliderView.getBundle().putString("extra", listName.get(i));
+                                        sliderView.getBundle().putString("extra", c.optString("link"));
                                         promoSlider.addSlider(sliderView);
 
                                     } catch (JSONException e) {
@@ -273,9 +282,17 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //  Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
-        }){
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
@@ -371,7 +388,7 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
     private void getMerchant() {
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.BANNER_IMG+"/8", null,
+                Request.Method.GET, Global.base_url+ServiceNames.BANNER_IMG + "/8", null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -406,9 +423,17 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
-        }){
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
@@ -427,6 +452,8 @@ public class HomeFragment extends Fragment implements BaseSliderView.OnSliderCli
 
     @Override
     public void onSliderClick(BaseSliderView slider) {
-       // Toast.makeText(getContext(), slider.getBundle().getString("extra") + "", Toast.LENGTH_SHORT).show();
+        //   Toast.makeText(getContext(), slider.getBundle().getString("extra") , Toast.LENGTH_SHORT).show();
+//        startActivity(new Intent(getContext(), WebViewActivity.class)
+//                .putExtra("link", slider.getBundle().getString("extra")));
     }
 }

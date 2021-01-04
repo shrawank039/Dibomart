@@ -24,9 +24,11 @@ import com.dibomart.dibomart.model.AddressList;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +132,7 @@ public class PayAddressListAdapter extends RecyclerView.Adapter<PayAddressListAd
 
     private void deleteItem(final String key) {
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.DELETE, ServiceNames.DELETE_ADDRESS+key, null,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.DELETE, Global.base_url+ServiceNames.DELETE_ADDRESS+key, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -148,7 +150,15 @@ public class PayAddressListAdapter extends RecyclerView.Adapter<PayAddressListAd
             @Override
             public void onErrorResponse(VolleyError error) {
              //   pDialog.dismiss();
-                Toast.makeText(ctx, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override
@@ -177,7 +187,7 @@ public class PayAddressListAdapter extends RecyclerView.Adapter<PayAddressListAd
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.EXISTING_PAY_ADDRESS, data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.EXISTING_PAY_ADDRESS, data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -188,7 +198,15 @@ public class PayAddressListAdapter extends RecyclerView.Adapter<PayAddressListAd
             @Override
             public void onErrorResponse(VolleyError error) {
              //   pDialog.dismiss();
-                Toast.makeText(ctx, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override

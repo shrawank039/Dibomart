@@ -22,6 +22,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.dibomart.dibomart.model.ProductList;
+import com.dibomart.dibomart.model.ProductOption;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -45,9 +47,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -72,6 +77,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
     private String code;
     private String mobile;
     private String password;
+    private String OTP = "-null-";
 
     private String success;
 
@@ -151,7 +157,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
                 //     user action.
                 Log.d("TAG", "onVerificationCompleted:" + credential);
 
-                signInWithPhoneAuthCredential(credential);
+              //  signInWithPhoneAuthCredential(credential);
             }
 
             @Override
@@ -191,11 +197,12 @@ public class MobileVerifyActivity extends AppCompatActivity {
         fabbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MobileVerifyActivity.this, fabbutton.getTag().toString(), Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(MobileVerifyActivity.this, fabbutton.getTag().toString(), Toast.LENGTH_SHORT).show();
                 if (fabbutton.getTag().equals("send")) {
                     if (!phoneed.getText().toString().trim().isEmpty() && phoneed.getText().toString().trim().length() >= 10) {
                       //  Toast.makeText(MobileVerifyActivity.this, ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim(), Toast.LENGTH_SHORT).show();
-                        startPhoneNumberVerification(ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim());
+                      //  startPhoneNumberVerification(ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim());
+                        sendOtp(ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim());
                         mVerified = false;
                         starttimer();
                         codeed.setVisibility(View.VISIBLE);
@@ -222,8 +229,9 @@ public class MobileVerifyActivity extends AppCompatActivity {
                                 .make((ConstraintLayout) findViewById(R.id.parentlayout), "Please wait...", Snackbar.LENGTH_LONG);
 
                         snackbar.show();
-                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, codeed.getText().toString().trim());
-                        signInWithPhoneAuthCredential(credential);
+                     //   PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, codeed.getText().toString().trim());
+                      //  signInWithPhoneAuthCredential(credential);
+                        verifyOtp(codeed.getText().toString().trim());
                     }
                     if (mVerified) {
                         if(!ispass) {
@@ -263,7 +271,8 @@ public class MobileVerifyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!phoneed.getText().toString().trim().isEmpty() && phoneed.getText().toString().trim().length() == 10) {
-                    resendVerificationCode(phoneed.getText().toString().trim(), mResendToken);
+                  //  resendVerificationCode(phoneed.getText().toString().trim(), mResendToken);
+                    sendOtp("+91"+phoneed.getText().toString().trim());
                     mVerified = false;
                     starttimer();
                     codeed.setVisibility(View.VISIBLE);
@@ -292,7 +301,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.FORGOT_POST,data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.FORGOT_POST,data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -305,7 +314,15 @@ public class MobileVerifyActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }) {
             @Override
@@ -342,7 +359,8 @@ public class MobileVerifyActivity extends AppCompatActivity {
                         code = jsonObject.optString("code");
 
                         if (fabbutton.getTag().equals("reset")) {
-                            startPhoneNumberVerification(ccp.getSelectedCountryCodeWithPlus() + phoneed.getText().toString().trim());
+                          //  startPhoneNumberVerification(ccp.getSelectedCountryCodeWithPlus() + phoneed.getText().toString().trim());
+                            sendOtp(ccp.getSelectedCountryCodeWithPlus()+phoneed.getText().toString().trim());
                             mVerified = false;
                             starttimer();
                             codeed.setVisibility(View.VISIBLE);
@@ -358,7 +376,15 @@ public class MobileVerifyActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "03 error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }) {
             @Override
@@ -367,6 +393,57 @@ public class MobileVerifyActivity extends AppCompatActivity {
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
                 headers.put("X-Oc-Session", prf.getString("session"));
+                return headers;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setShouldCache(false);
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+    }
+
+    private void sendOtp(String mobile){
+        Random rand = new Random();
+        // Generate random integers in range 0 to 999999
+        int rand_int = rand.nextInt(1000000);
+        final String otp_ = String.valueOf(rand_int);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, ServiceNames.SMS_API+mobile+"&text="+otp_+" is your OTP for Dibomart. Please don’t share this OTP to anyone. - TELECHARGE E SERVICE",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("TAG", "response : " + response);
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+                            if (jsonObject.optString("status").equalsIgnoreCase("success")) {
+                                Toast.makeText(MobileVerifyActivity.this, "OTP Sent.", Toast.LENGTH_SHORT).show();
+                                OTP = otp_;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
                 return headers;
             }
         };
@@ -410,6 +487,41 @@ public class MobileVerifyActivity extends AppCompatActivity {
 
         startActivity(new Intent(getApplicationContext(),PaymentWebViewActivity.class)
                 .putExtra("data", form_action));
+    }
+
+    private void verifyOtp(String otp) {
+
+        if (otp.equalsIgnoreCase(OTP)) {
+
+            mVerified = true;
+            timer.cancel();
+            verifiedimg.setVisibility(View.VISIBLE);
+            timertext.setVisibility(View.INVISIBLE);
+            phoneed.setEnabled(false);
+            ((TextInputLayout) findViewById(R.id.enterotp)).setVisibility(View.GONE);
+            codeed.setVisibility(View.INVISIBLE);
+            Snackbar snackbar = Snackbar
+                    .make((ConstraintLayout) findViewById(R.id.parentlayout), "Successfully Verified", Snackbar.LENGTH_LONG);
+
+            snackbar.show();
+//            if(!ispass) {
+//                // new OneLoadAllProducts().execute();
+//                Log.d("TAG","Verified : registerSubmit()");
+//                registerSubmit();
+//            } else {
+//                ((LinearLayout) findViewById(R.id.entermobile)).setVisibility(View.GONE);
+//                ((LinearLayout) findViewById(R.id.resetpass)).setVisibility(View.VISIBLE);
+//                forgotPost();
+//            }
+            // ...
+        } else {
+            // Sign in failed, display a message and update the UI
+                // The verification code entered was invalid
+                Snackbar snackbar = Snackbar
+                        .make((ConstraintLayout) findViewById(R.id.parentlayout), "Invalid OTP ! Please enter correct OTP", Snackbar.LENGTH_LONG);
+
+                snackbar.show();
+        }
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
@@ -492,8 +604,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
         }, 0, 1000);
     }
 
-    private void resendVerificationCode(String phoneNumber,
-                                        PhoneAuthProvider.ForceResendingToken token) {
+    private void resendVerificationCode(String phoneNumber, PhoneAuthProvider.ForceResendingToken token) {
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
                 60,                 // Timeout duration
@@ -505,7 +616,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
 
     private void registerSubmit() {
         pDialog = new ProgressDialog(MobileVerifyActivity.this);
-        pDialog.setMessage("Loading Please wait...");
+        pDialog.setMessage("Please wait...");
         pDialog.setIndeterminate(false);
         pDialog.setCancelable(false);
         pDialog.show();
@@ -524,7 +635,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.USER_REGISTRATION, data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.USER_REGISTRATION, data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -562,6 +673,15 @@ public class MobileVerifyActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override
@@ -583,7 +703,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, ServiceNames.CHANGE_PASS,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Global.base_url+ServiceNames.CHANGE_PASS,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -606,6 +726,15 @@ public class MobileVerifyActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override
@@ -621,7 +750,7 @@ public class MobileVerifyActivity extends AppCompatActivity {
 
     private void createSession() {
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.SESSION, null,
+                Request.Method.GET, Global.base_url+ServiceNames.SESSION, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -639,7 +768,15 @@ public class MobileVerifyActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override

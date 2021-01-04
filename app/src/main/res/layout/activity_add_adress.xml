@@ -221,7 +221,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
                             android:gravity="center_vertical"
-                            android:inputType="number"
+                            android:inputType="none"
+                            android:focusable="false"
                             android:maxLength="10"
                             android:maxLines="1"
                             android:singleLine="true"
@@ -268,15 +269,14 @@
 
                 </LinearLayout>
 
-                <Button
-                    android:onClick="add"
-                    android:id="@+id/btn_add_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:layout_margin="10dp"
-                    android:textColor="@color/white"
-                    android:layout_marginTop="15dp"
-                    android:text="Add"
-                    android:background="@color/colorPrimary"/>
-            </LinearLayout>
+        <Button
+            android:id="@+id/btn_add_address"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_margin="10dp"
+            android:layout_marginTop="15dp"
+            android:background="@color/colorPrimary"
+            android:text="Add"
+            android:textColor="@color/white" />
+    </LinearLayout>
 </LinearLayout>

@@ -74,7 +74,8 @@
                 android:id="@+id/txt_default"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="defualt"
+                android:text="default"
+                android:textColor="#4CAF50"
                 android:fontFamily="@font/muli" />
 
 

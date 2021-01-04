@@ -21,7 +21,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.Glide;
+import com.dibomart.dibomart.AddAdress;
 import com.dibomart.dibomart.Global;
+import com.dibomart.dibomart.OrderDetailActivity;
 import com.dibomart.dibomart.PrefManager;
 import com.dibomart.dibomart.ProductDetailsActivity;
 import com.dibomart.dibomart.R;
@@ -31,9 +33,11 @@ import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 import com.dibomart.dibomart.ui.PageViewModel;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +103,7 @@ public class AddressListAdapter extends RecyclerView.Adapter<AddressListAdapter.
 
         holder.txtMenu.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
 
                 //creating a popup menu
                 PopupMenu popup = new PopupMenu(ctx, holder.txtMenu);
@@ -111,7 +115,18 @@ public class AddressListAdapter extends RecyclerView.Adapter<AddressListAdapter.
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.edit:
-                                //handle menu1 click
+                                view.getContext().startActivity(new Intent(view.getContext(), AddAdress.class)
+                                        .putExtra("address_id", ongoing.getAddressId())
+                                        .putExtra("firstname", ongoing.getFirstName())
+                                        .putExtra("lastname", ongoing.getLastName())
+                                        .putExtra("address_1", ongoing.getAdd1())
+                                        .putExtra("address_2", ongoing.getAdd2())
+                                        .putExtra("postcode", ongoing.getPincode())
+                                        .putExtra("city", ongoing.getCity())
+                                        .putExtra("zone_id", ongoing.getZoneId())
+                                        .putExtra("country_id", ongoing.getAddressId())
+                                        .putExtra("type","2")
+                                );
                                 return true;
                             case R.id.delete:
                                 moviesList.remove(position);
@@ -142,7 +157,7 @@ public class AddressListAdapter extends RecyclerView.Adapter<AddressListAdapter.
 
     private void deleteItem(final String key) {
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.DELETE, ServiceNames.DELETE_ADDRESS+key, null,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.DELETE, Global.base_url+ServiceNames.DELETE_ADDRESS+key, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -160,7 +175,15 @@ public class AddressListAdapter extends RecyclerView.Adapter<AddressListAdapter.
             @Override
             public void onErrorResponse(VolleyError error) {
              // pDialog.dismiss();
-                Toast.makeText(ctx, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override
@@ -180,7 +203,7 @@ public class AddressListAdapter extends RecyclerView.Adapter<AddressListAdapter.
         MySingleton.getInstance(ctx).addToRequestQueue(stringRequest);
     }
 
-    private void makeDefault(String key) {
+    private void makeDefault(final String key) {
 
         JSONObject data= new JSONObject();
         try {
@@ -189,18 +212,73 @@ public class AddressListAdapter extends RecyclerView.Adapter<AddressListAdapter.
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.EXISTING_ADDRESS, data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.EXISTING_ADDRESS, data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                   //     pDialog.dismiss();
-
+                        makePayDefault(key);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
              //   pDialog.dismiss();
-                Toast.makeText(ctx, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("X-Oc-Merchant-Id", prf.getString("s_key"));
+                headers.put("X-Oc-Session", prf.getString("session"));
+                return headers;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setShouldCache(false);
+        MySingleton.getInstance(ctx).addToRequestQueue(stringRequest);
+    }
+
+    private void makePayDefault(final String key) {
+
+        JSONObject data= new JSONObject();
+        try {
+            data.put("address_id", key);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.EXISTING_PAY_ADDRESS, data,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        prf.setString("payment_id",key);
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //   pDialog.dismiss();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override

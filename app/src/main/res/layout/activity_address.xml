@@ -43,10 +43,11 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
-        android:layout_margin="10dp"
+        android:layout_margin="20dp"
+        android:background="#1903A9F4"
         android:gravity="center"
         app:layout_collapseMode="pin"
-        android:layout_height="35dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_width="match_parent">
     </com.google.android.material.tabs.TabLayout>

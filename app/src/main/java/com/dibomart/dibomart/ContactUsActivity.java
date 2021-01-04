@@ -18,9 +18,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.dibomart.dibomart.net.MySingleton;
 import com.dibomart.dibomart.net.ServiceNames;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +39,7 @@ public class ContactUsActivity extends AppCompatActivity {
 
         prf = new PrefManager(this);
         name = findViewById(R.id.edt_name);
-        email = findViewById(R.id.email);
+        email = findViewById(R.id.edt_mail);
         message = findViewById(R.id.edt_message);
     }
 
@@ -51,8 +53,12 @@ public class ContactUsActivity extends AppCompatActivity {
     }
 
     public void submit(View view) {
-        if (!name.getText().toString().equals("") && !email.getText().toString().equals("") && !message.getText().toString().equals(""))
-            submitForm();
+        if (!name.getText().toString().equals("") && !email.getText().toString().equals("") && !message.getText().toString().equals("")) {
+            if (message.getText().length()<11)
+                Toast.makeText(this, "Message should be at least 10 character.", Toast.LENGTH_SHORT).show();
+                else
+                submitForm();
+        }
         else
             Toast.makeText(this, "Please fill all field!", Toast.LENGTH_LONG).show();
     }
@@ -73,7 +79,7 @@ public class ContactUsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceNames.CONTACT_US, data,
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, Global.base_url+ServiceNames.CONTACT_US, data,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -88,7 +94,15 @@ public class ContactUsActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override

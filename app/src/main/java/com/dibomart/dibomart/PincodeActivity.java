@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,10 +45,10 @@ public class PincodeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_pincode);
         llnoService = findViewById(R.id.ll_noservice);
         pinEdt = findViewById(R.id.edt_pincode);
-        Global.ongoingList = new ArrayList();
         pinEdt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,15 +78,12 @@ public class PincodeActivity extends AppCompatActivity {
                                 prf.setString("pincode", jsonObject.optString("pincode"));
                                 prf.setString("url", jsonObject.optString("url"));
                                 prf.setString("s_key", jsonObject.optString("s_key"));
-                              //  ServiceNames.PRODUCTION_API = jsonObject.optString("url");
+                                prf.setString("call_us", jsonObject.optString("phone"));
+                                Global.base_url = jsonObject.optString("url")+"/";
 
-                                if (Global.banner.size()<1) {
-                                    getCategory();
-                                }else {
-                                    Intent intent = new Intent(PincodeActivity.this, MainActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                }
+                                prf.setString("base_url", Global.base_url);
+
+                                getCategory();
 
                             } else {
                                 llnoService.setVisibility(View.VISIBLE);
@@ -96,7 +94,15 @@ public class PincodeActivity extends AppCompatActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     pDialog.dismiss();
-                    Toast.makeText(PincodeActivity.this, "error : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                    try {
+                        String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                        JSONObject jsonObject = new JSONObject(responseBody);
+                        JSONArray jsonArray = jsonObject.optJSONArray("error");
+                        String err = jsonArray.optString(0);
+                        Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                    } catch (JSONException e) {
+                        //Handle a malformed json response
+                    }
                 }
             });
             stringRequest.setRetryPolicy(new DefaultRetryPolicy(
@@ -107,13 +113,16 @@ public class PincodeActivity extends AppCompatActivity {
             MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
 
     }
+
     private void getCategory() {
+     //   Toast.makeText(this, Global.base_url+" "+ServiceNames.PRODUCTION_API, Toast.LENGTH_SHORT).show();
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.ALL_CATEGORIES, null,
+                Request.Method.GET, Global.base_url+ServiceNames.ALL_CATEGORIES, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        //  Global.ongoingList.clear();
+
+                        Global.ongoingList.clear();
 
                         if (response.optString("success").equals("1")) {
                             JSONArray jsonarray = null;
@@ -164,7 +173,15 @@ public class PincodeActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override
@@ -183,12 +200,20 @@ public class PincodeActivity extends AppCompatActivity {
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
     private void getBannerImage() {
+
+        pDialog = new ProgressDialog(PincodeActivity.this);
+        pDialog.setMessage("Loading Data...");
+        pDialog.setIndeterminate(false);
+        pDialog.setCancelable(false);
+        pDialog.show();
+
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.GET, ServiceNames.BANNER_IMG+"/7", null,
+                Request.Method.GET, Global.base_url+ServiceNames.BANNER_IMG+"/7", null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
+                        Global.banner.clear();
+                        pDialog.dismiss();
                         if (response.optString("success").equals("1")) {
                             try {
                                 JSONArray jsonArray = response.getJSONArray("data");
@@ -216,7 +241,16 @@ public class PincodeActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "03 " + error.toString(), Toast.LENGTH_SHORT).show();
+                pDialog.dismiss();
+                try {
+                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray jsonArray = jsonObject.optJSONArray("error");
+                    String err = jsonArray.optString(0);
+                    Toast.makeText(getApplicationContext(), err, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    //Handle a malformed json response
+                }
             }
         }){
             @Override
